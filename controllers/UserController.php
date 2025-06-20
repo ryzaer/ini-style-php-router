@@ -2,8 +2,8 @@
 
 class UserController
 {
-    public function show($id)
+    public function show($param)
     {
-        echo "User detail for ID: " . htmlspecialchars($id);
+        echo "User detail for ID: " . htmlspecialchars($param->id);
     }
 }

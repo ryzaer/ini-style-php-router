@@ -4,12 +4,10 @@ class Router
 {
     private $routes = [];
     private $config = [];
-    private $globalOptions = [];
 
     public function __construct($configPath)
     {
-        $this->config = $this->loadConfig($configPath);
-        $this->globalOptions = $this->config['global'] ?? [];        
+        $this->config = $this->loadConfig($configPath);       
         $this->loadRoutes($this->config['router'] ?? []);
     }
 
@@ -56,6 +54,7 @@ class Router
 
     private function loadRoutes($routes)
     {
+        unset($this->config['router']);
         foreach ($routes as $line => $value) {
             preg_match('/\[(.*?)\]/', $value, $matches);
             $options = [];
@@ -128,7 +127,8 @@ class Router
                 if (file_exists($controllerFile)) {
                     require_once $controllerFile;
                     $obj = new $controller();
-                    return call_user_func_array([$obj, $action], $params);
+                    // return call_user_func_array([$obj, $action], $params);
+                    return $obj->$action((object)$params,$this);
                 }
 
                 http_response_code(500);
