@@ -1,0 +1,18 @@
+{{@extends:templates/homepage.html}}
+
+{{@section:header}}
+    <h1>Selamat Datang</h1>
+{{@endsection}}
+
+{{@section:content}}
+    {{@component:'templates/components/alert.html' with message="Sukses Login!" type="success"}}
+    <p>Ini adalah contoh templating Membuat sistem @section/@yield/@extends sederhana</p>
+    
+<p>✅ Sistem layout dengan @extends, @section, @endsection, dan @section:... (alias @yield)</p>
+
+<p></p>✅ Parser variabel, helper chaining, include, loop, dan conditionals</p>
+{{@endsection}}
+
+{{@section:footer}}
+    <small>© 2025 Riza</small>
+{{@endsection}}

@@ -4,7 +4,8 @@ class HomeController
 {
     public function index()
     {
-        echo "Welcome to the homepage!";
-        
+        $layout = new Layout('templates/home.html');
+        $layout->set('title', 'Halaman Awal');
+        print $layout->render();
     }
 }
