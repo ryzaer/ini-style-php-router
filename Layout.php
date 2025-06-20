@@ -10,10 +10,19 @@ class Layout
     protected array $data = [];
     protected array $sections = [];
     protected ?string $parentLayout = null;
+    protected string $cacheDir = 'cache';
+    protected bool $enableCache = false;
+    protected array $includedFiles = [];
 
     public function __construct(string $layoutFile)
     {
         $this->layoutFile = $layoutFile;
+    }
+
+    protected function getCacheFilePath(): string
+    {
+        $hash = md5($this->layoutFile . serialize($this->data));
+        return $this->cacheDir . '/tpl_' . $hash . '.html';
     }
 
     protected function parseExtends(string &$content): void
@@ -175,6 +184,7 @@ class Layout
     protected function loadFile(string $filePath): string
     {
         if (file_exists($filePath)) {
+            $this->includedFiles[] = $filePath;
             return $this->parse(file_get_contents($filePath));
         }
         return "<!-- File not found: $filePath -->";
@@ -262,22 +272,60 @@ class Layout
             return "<!-- Layout file not found: {$this->layoutFile} -->";
         }
 
+        $cacheFile = $this->getCacheFilePath();
+        $metaFile = $cacheFile . '.meta';
+
+        // Gunakan cache jika file belum berubah
+        if ($this->enableCache && file_exists($cacheFile) && file_exists($metaFile)) {
+            $meta = json_decode(file_get_contents($metaFile), true);
+            $expired = false;
+
+            foreach ($meta['files'] as $file => $lastModified) {
+                if (!file_exists($file) || filemtime($file) > $lastModified) {
+                    $expired = true;
+                    break;
+                }
+            }
+
+            if (!$expired) {
+                return file_get_contents($cacheFile);
+            }
+        }
+
+        // --- Proses rendering seperti biasa ---
         $content = file_get_contents($this->layoutFile);
-
-        // Step 1: check @extends and remove it
         $this->parseExtends($content);
-
-        // Step 2: collect sections
         $this->parseSections($content);
 
-        // Step 3: jika ada parent layout
         if ($this->parentLayout && file_exists($this->parentLayout)) {
             $layoutContent = file_get_contents($this->parentLayout);
             $layoutContent = $this->injectYields($layoutContent);
-            return $this->parse($layoutContent);
+            $output = $this->parse($layoutContent);
+        } else {
+            $output = $this->parse($content);
         }
 
-        // Kalau tidak pakai extends
-        return $this->parse($content);
+        // Simpan cache
+        if ($this->enableCache) {
+            // Catat file yang terlibat: layoutFile, parentLayout, includes
+            $usedFiles = array_unique(array_merge(
+                [$this->layoutFile],
+                $this->parentLayout ? [$this->parentLayout] : [],
+                $this->includedFiles
+            ));
+
+            $metaData = [
+                'files' => []
+            ];
+
+            foreach ($usedFiles as $file) {
+                $metaData['files'][$file] = file_exists($file) ? filemtime($file) : 0;
+            }
+
+            file_put_contents($cacheFile, $output);
+            file_put_contents($metaFile, json_encode($metaData));
+        }
+
+        return $output;
     }
 }

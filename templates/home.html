@@ -8,9 +8,24 @@
     {{@component:'templates/components/alert.html' with message="Sukses Login!" type="success"}}
     <p>Ini adalah contoh templating Membuat sistem @section/@yield/@extends sederhana</p>
     
-<p>✅ Sistem layout dengan @extends, @section, @endsection, dan @section:... (alias @yield)</p>
+    <p>✅ Sistem layout dengan @extends, @section, @endsection, dan @section:... (alias @yield)</p>
 
-<p></p>✅ Parser variabel, helper chaining, include, loop, dan conditionals</p>
+    <p>✅ Parser variabel, helper chaining, include, loop, dan conditionals</p>
+    <pre><code>
+        Aktifkan cache dari luar:
+        $layout->enableCache = true;
+        Hapus semua cache:
+        array_map('unlink', glob('cache/*.html'));
+    </code></pre>
+    <kbd>coba ubah disini</kbd>
+    feature
+    <ul>
+        <li>✅ Layout inheritance</li>
+        <li>✅ Komponen</li>
+        <li>✅ Filter chaining</li>
+        <li>✅ Caching</li>
+        <li>✅ Auto-refresh + CLI cache cleaner</li>
+    </ul>
 {{@endsection}}
 
 {{@section:footer}}
