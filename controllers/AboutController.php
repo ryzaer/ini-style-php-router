@@ -10,13 +10,10 @@ class AboutController
         $layout->set('judul_article', 'dampak memasang baliho');
         $layout->set('items', ['Andi', 'Budi', 'Cici']); // contoh array
         $layout->set('title', 'User Profile');
-        $layout->set('user', [
-            'name' => 'Riza',
-            'role' => 'Admin'
-        ]);
         $layout->set('template_file', 'header');
         $layout->set('user', [
             'name' => 'Riza Borneo',
+            'role' => 'Admin',
             'created_at' => '2024-12-31 15:45:00'
         ]);
         print $layout->render();
