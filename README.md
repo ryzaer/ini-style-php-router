@@ -1,6 +1,6 @@
 
 
-# PHP Router Class Documentation
+# iniStyle PHP Router Class Documentation
 This document describes the usage, structure, and configuration of the `Router` class used for routing in a PHP application with `.ini`-based configuration.
 
 Templating engine integrated, supporting Blade-like syntax including `@extends`, `@section`, filters, includes, components, and caching.
