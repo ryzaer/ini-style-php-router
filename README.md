@@ -84,3 +84,10 @@ public function method($self,$params) {
     // $params is an object with route parameters
 }
 ```
+---
+## 🛠 CLI Extensions
+
+You can build CLI scripts (`cli.php`) to:
+- Generate handler stubs (`php cli.php config make:handlers`)
+- Generate PWA setup (`php cli.php config make:pwa`) based on `[pwa]` section
+- Template Cache cleaner (`php cli.php clear:caches`)
