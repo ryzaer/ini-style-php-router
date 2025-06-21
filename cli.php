@@ -37,7 +37,7 @@ if (isset($argv[2])) {
         }
 
         $manifest = [
-            "name" => $global['name'] ?? 'My PHP App',
+            "name" => $pwa['name'] ?? 'My PHP App',
             "short_name" => $pwa['short_name'] ?? 'PHPApp',
             "start_url" => $pwa['start_url'] ?? './',
             "display" => $pwa['display'] ?? 'standalone',
