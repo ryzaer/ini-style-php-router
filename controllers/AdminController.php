@@ -2,7 +2,7 @@
 
 class AdminController
 {
-    public function section($params, $self)
+    public function section($self,$params,$http_code)
     {
         // TODO: implement section
     }

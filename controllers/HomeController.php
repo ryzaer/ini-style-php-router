@@ -2,15 +2,14 @@
 
 class HomeController
 {
-    public function index()
+    public function index($c,$p)
     {
-        $layout = new Layout('templates/home.html');
-        $layout->set('title', 'Halaman Awal');
-        $layout->set('user', [
+        $c->set('title', 'Halaman Awal');
+        $c->set('user', [
             'name' => 'Riza Borneo',
             'role' => 'Admin',
             'created_at' => '2024-12-31 15:45:00'
         ]);
-        print $layout->render();
+        print $c->render('templates/home.html');
     }
 }

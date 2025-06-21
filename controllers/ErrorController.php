@@ -2,7 +2,7 @@
 
 class ErrorController
 {
-    public function handle($param,$self,$http_code)
+    public function handle($self,$param,$http_code)
     {
         print "ERROR ! $http_code";
     }

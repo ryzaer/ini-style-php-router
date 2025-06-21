@@ -2,7 +2,7 @@
 
 class ContactController
 {
-    public function form($params, $self)
+    public function form($self,$params,$http_code)
     {
         // TODO: implement form
     }
