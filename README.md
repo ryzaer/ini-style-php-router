@@ -3,6 +3,8 @@
 # PHP Router Class Documentation
 This document describes the usage, structure, and configuration of the `Router` class used for routing in a PHP application with `.ini`-based configuration.
 
+Templating engine integrated, supporting Blade-like syntax including `@extends`, `@section`, filters, includes, components, and caching.
+
 ## 📂 Class Overview
 The `Router` class provides a flexible way to define HTTP routes using a configuration `.ini` file and dispatches requests to corresponding controller actions.
 
@@ -85,9 +87,54 @@ public function method($self,$params) {
 }
 ```
 ---
+## 📦 Templating Features
+
+- `{{@variable}}` – Basic variable replacement (supports nested keys)
+- `{{@var|lower|ucwords}}` – Filter chaining (with optional parameters)
+- `{{'template/header.html'}}` – Static includes
+- `{{'template/' ~ name ~ '.html'}}` – Dynamic includes
+- `{{if ...}} ... {{endif}}` – Conditionals
+- `{{foreach item in list}} ... {{endforeach}}` – Looping
+- `{{@component:'file.html' with key="value"}}` – Component rendering
+- `@extends`, `@section`, `@endsection`, `@section:name` – Layout inheritance
+- Caching system with auto-expiry on template modification
+
+---
+
+## 💾 Caching System
+
+- Cache path: `caches/tpl_{hash}.html`
+- Metadata path: `caches/tpl_{hash}.html.meta`
+- Automatically bypasses cache if any involved file (layout, partial, component) is modified.
+
+---
+
 ## 🛠 CLI Extensions
 
 You can build CLI scripts (`cli.php`) to:
 - Generate handler stubs (`php cli.php config make:handlers`)
 - Generate PWA setup (`php cli.php config make:pwa`) based on `[pwa]` section
 - Template Cache cleaner (`php cli.php clear:caches`)
+
+After `php cli.php config make:handlers` executed, your structure folders will be like this
+```
+/your-app
+  ├── caches/
+  ├── controllers/
+  │   └── handlers....php
+  ├── config.ini
+  ├── cli.php
+  └── Router.php
+```
+then make folder `template`, for templating like this
+```
+/your-app
+  ├── caches/
+  ├── controllers/
+  │   └── handlers....php
+  ├── templates/
+  │   └── components/
+  ├── config.ini
+  ├── cli.php
+  └── Router.php
+```
