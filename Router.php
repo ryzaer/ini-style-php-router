@@ -13,6 +13,8 @@ class Router
     protected bool $enableCache = false;
     protected array $includedFiles = [];
 
+    private static $inst;
+
     public function __construct($configPath)
     {
         $this->config = $this->loadConfig($configPath);       
@@ -126,18 +128,23 @@ class Router
         return false;
     }
 
-    public function dispatch($uri, $method)
+    public static function dispatch($configPath)
     {
+        if(!self::$inst)
+            self::$inst = new Router($configPath);
+        
+        $uri = $_SERVER['REQUEST_URI'];
+        $method = $_SERVER['REQUEST_METHOD'];
         $path = parse_url($uri, PHP_URL_PATH);
         $method = strtoupper($method);
         $params = [];
         $path = str_replace(substr($_SERVER['SCRIPT_NAME'], 0, -10), '', $path);
 
-        $errorHandler = $this->config['global']['error_handler'] ?? null;
+        $errorHandler = self::$inst->config['global']['error_handler'] ?? null;
 
-        if (!isset($this->routes[$method])) {
+        if (!isset(self::$inst->routes[$method])) {
             if ($errorHandler) {
-                $this->includeHandler($errorHandler, $params, 405);
+                self::$inst->includeHandler($errorHandler, $params, 405);
             } else {
                 http_response_code(405);
                 echo "405 Method Not Allowed";
@@ -145,7 +152,7 @@ class Router
             return;
         }
 
-        foreach ($this->routes[$method] as $route) {
+        foreach (self::$inst->routes[$method] as $route) {
             if (preg_match($route['regex'], $path, $matches)) {
                 array_shift($matches);
                 $params = array_combine($route['params'], $matches);
@@ -156,8 +163,8 @@ class Router
 
                 if (!empty($route['options']['auth']) && $route['options']['auth'] === 'true') {
                     session_start();
-                    if(isset($this->config['global']['auth_data']) && $this->config['global']['auth_data']){
-                        $authKeys = explode('|', $this->config['global']['auth_data'] ?? '');
+                    if(isset(self::$inst->config['global']['auth_data']) && self::$inst->config['global']['auth_data']){
+                        $authKeys = explode('|', self::$inst->config['global']['auth_data'] ?? '');
                         $authKeys = array_map('trim', $authKeys);
                         $missing = array_filter($authKeys, function ($key) {
                             return !isset($_SESSION[$key]);
@@ -165,7 +172,7 @@ class Router
                         
                         if (!empty($missing)) {
                             if ($errorHandler) {
-                                $this->includeHandler($errorHandler, $params, 403);
+                                self::$inst->includeHandler($errorHandler, $params, 403);
                             } else {
                                 http_response_code(403);
                                 echo "403 Forbidden (missing auth data)";
@@ -175,10 +182,10 @@ class Router
                     }
                 }
 
-                if ($this->includeHandler($route['handler'], $params)) return;
+                if (self::$inst->includeHandler($route['handler'], $params)) return;
 
                 if ($errorHandler) {
-                    $this->includeHandler($errorHandler, $params, 500);
+                    self::$inst->includeHandler($errorHandler, $params, 500);
                 } else {
                     http_response_code(500);
                     echo "500 Controller not found.";
@@ -188,7 +195,7 @@ class Router
         }
 
         if ($errorHandler) {
-            $this->includeHandler($errorHandler, $params, 404);
+            self::$inst->includeHandler($errorHandler, $params, 404);
         } else {
             http_response_code(404);
             echo "404 Not Found";
