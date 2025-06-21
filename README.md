@@ -9,7 +9,7 @@ The `Router` class provides a flexible way to define HTTP routes using a configu
 ## 📁 Folder Structure Suggestion
 ```
 /your-app
-  ├── router.ini
+  ├── config.ini
   └── Router.php
 ```
 ---
