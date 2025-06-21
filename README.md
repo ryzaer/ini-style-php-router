@@ -152,6 +152,7 @@ $router = new Router('config.ini');
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
 ```
 so your folder structure now will be
+```
 /your-app
   ├── caches/
   ├── controllers/
