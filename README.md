@@ -10,6 +10,7 @@ The `Router` class provides a flexible way to define HTTP routes using a configu
 ```
 /your-app
   ├── config.ini
+  ├── cli.php
   └── Router.php
 ```
 ---
