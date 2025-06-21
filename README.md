@@ -11,8 +11,8 @@ The `Router` class provides a flexible way to define HTTP routes using a configu
 ## 📁 Folder Structure Suggestion
 ```
 /your-app
-  ├── config.ini
   ├── cli.php
+  ├── config.ini
   └── Router.php
 ```
 ---
@@ -125,8 +125,8 @@ After `php cli.php config make:handlers` executed, your structure folders will b
   │   └── HomeController.php
   │   └── ProfileController.php
   │   └── AuthController.php
-  ├── config.ini
   ├── cli.php
+  ├── config.ini
   └── Router.php
 ```
 then make folder `templates`, for templating like this
@@ -140,7 +140,14 @@ then make folder `templates`, for templating like this
   │   └── AuthController.php
   ├── templates/
   │   └── components/
-  ├── config.ini
   ├── cli.php
+  ├── config.ini
   └── Router.php
+```
+make file `index.php`, then run the Router class
+```
+<?php
+require_once 'Router.php';
+$router = new Router('config.ini');
+$router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
 ```
