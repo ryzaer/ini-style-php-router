@@ -144,10 +144,25 @@ then make folder `templates`, for templating like this
   ├── config.ini
   └── Router.php
 ```
-make file `index.php`, then run the Router class
+create file `index.php`, then run the Router class
 ```
 <?php
 require_once 'Router.php';
 $router = new Router('config.ini');
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
+```
+so your folder structure now will be
+/your-app
+  ├── caches/
+  ├── controllers/
+  │   └── ErrorController.php
+  │   └── HomeController.php
+  │   └── ProfileController.php
+  │   └── AuthController.php
+  ├── templates/
+  │   └── components/
+  ├── cli.php
+  ├── config.ini
+  ├── index.php
+  └── Router.php
 ```
