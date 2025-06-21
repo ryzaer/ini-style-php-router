@@ -26,7 +26,7 @@ auth_data = username|role|token
 
 [router]
 GET / = HomeController@index
-GET /profile/{id} = ProfileController@show [auth=true,cors=true]
+GET|POST /profile/{id} = ProfileController@show [auth=true,cors=true]
 POST /login = AuthController@login
 
 [pwa]
@@ -121,17 +121,23 @@ After `php cli.php config make:handlers` executed, your structure folders will b
 /your-app
   ├── caches/
   ├── controllers/
-  │   └── handlers....php
+  │   └── ErrorController.php
+  │   └── HomeController.php
+  │   └── ProfileController.php
+  │   └── AuthController.php
   ├── config.ini
   ├── cli.php
   └── Router.php
 ```
-then make folder `template`, for templating like this
+then make folder `templates`, for templating like this
 ```
 /your-app
   ├── caches/
   ├── controllers/
-  │   └── handlers....php
+  │   └── ErrorController.php
+  │   └── HomeController.php
+  │   └── ProfileController.php
+  │   └── AuthController.php
   ├── templates/
   │   └── components/
   ├── config.ini
