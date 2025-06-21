@@ -109,7 +109,7 @@ public function method($self,$params) {
 
 ---
 
-## 🛠 Getting start with CLI Extensions
+## 🛠 Getting start with CLI Extension
 
 You can build CLI scripts (`cli.php`) to:
 - Generate handler stubs (`php cli.php config make:handlers`)
