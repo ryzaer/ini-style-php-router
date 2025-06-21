@@ -4,7 +4,6 @@
 This document describes the usage, structure, and configuration of the `Router` class used for routing in a PHP application with `.ini`-based configuration.
 
 ## 📂 Class Overview
-
 The `Router` class provides a flexible way to define HTTP routes using a configuration `.ini` file and dispatches requests to corresponding controller actions.
 
 ## 📁 Folder Structure Suggestion
