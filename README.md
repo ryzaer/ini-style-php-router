@@ -11,9 +11,9 @@ The `Router` class provides a flexible way to define HTTP routes using a configu
 ## 📁 Folder Structure Suggestion
 ```
 /your-app
-  ├── cli.php
-  ├── config.ini
-  └── Router.php
+  ├── classes/
+  │   └── Router.php
+  └── config.ini
 ```
 ---
 ## 🔧 Configuration File Structure (`config.ini`)
@@ -121,33 +121,40 @@ enable_cache = true
 ---
 
 ## 🛠 Getting start with CLI Extension
-Example sintax:
+Create a file `index.php`, then run the `Router` class
 ```
-php cli.php [ini_file_name] [commands]
+<?php
+require_once 'Router.php';
+Router::dispatch('config.ini');
 ```
+Now you can build structure with `index.php` script to:
+```
+php index.php [ini_file_name] [commands]
+```
+- Generate route handler stubs (`php index.php config make:handlers`) including `error_handler`
+- Generate PWA setup (`php index.php config make:pwa`) based on `[pwa]` section
+- Template Cache cleaner (`php index.php clear:caches`)
 
-You can build structure with `cli.php` script to:
-- Generate route handler stubs (`php cli.php config make:handlers`) including `error_handler`
-- Generate PWA setup (`php cli.php config make:pwa`) based on `[pwa]` section
-- Template Cache cleaner (`php cli.php clear:caches`)
-
-After `php cli.php config make:handlers` executed, your structure folders will be like this
+After `php index.php config make:handlers` executed, your structure folders will be like this
 ```
 /your-app
   ├── caches/
+  ├── classes/
+  │   └── Router.php
   ├── controllers/
   │   └── ErrorController.php
   │   └── HomeController.php
   │   └── ProfileController.php
   │   └── AuthController.php
-  ├── cli.php
   ├── config.ini
-  └── Router.php
+  └── index.php
 ```
 then make a folder `templates`, for templating like this
 ```
 /your-app
   ├── caches/
+  ├── classes/
+  │   └── Router.php
   ├── controllers/
   │   └── ErrorController.php
   │   └── HomeController.php
@@ -155,15 +162,8 @@ then make a folder `templates`, for templating like this
   │   └── AuthController.php
   ├── templates/
   │   └── components/
-  ├── cli.php
   ├── config.ini
-  └── Router.php
-```
-create a file `index.php`, then run the `Router` class
-```
-<?php
-require_once 'Router.php';
-Router::dispatch('config.ini');
+  └── index.php
 ```
 don't forget to create `.htaccess` file to protect you configuration `.ini` file or if nginx users can convert on [winginx](https://www.winginx.com/en/htaccess)
 ```
@@ -182,6 +182,8 @@ so your folder structure now will be
 ```
 /your-app
   ├── caches/
+  ├── classes/
+  │   └── Router.php
   ├── controllers/
   │   └── ErrorController.php
   │   └── HomeController.php
@@ -190,8 +192,6 @@ so your folder structure now will be
   ├── templates/
   │   └── components/
   ├── .htaccess
-  ├── cli.php
   ├── config.ini
-  ├── index.php
-  └── Router.php
+  └── index.php
 ```
