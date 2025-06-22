@@ -11,6 +11,26 @@ is_dir($cachesPath) || mkdir($cachesPath,0777);
 $controllersPath = __DIR__ . '/controllers';
 is_dir($controllersPath) || mkdir($controllersPath,0777);
 
+if (isset($argv[1]) && $argv[1] == 'clear:caches') {
+    if (!is_dir($cachesPath)) {
+        echo "Cache directory not found.\n";
+        exit;
+    }
+    $files = glob($cachesPath . '/*.html*');
+    if (empty($files)) {
+        echo "No cache files to delete.\n";
+        exit;
+    }
+    foreach ($files as $file) {
+        if (unlink($file)) {
+            echo "Deleted: " . basename($file) . "\n";
+        } else {
+            echo "Failed to delete: " . basename($file) . "\n";
+        }
+    }
+    echo "Cache cleared.\n";
+}
+
 if (isset($argv[2])) {
 
     $configFile = __DIR__ . "/{$argv[1]}.ini";
@@ -143,25 +163,7 @@ JS;
 
     
 }
-if (isset($argv[1]) && $argv[1] == 'clear:caches') {
-    if (!is_dir($cachesPath)) {
-        echo "Cache directory not found.\n";
-        exit;
-    }
-    $files = glob($cachesPath . '/*.html*');
-    if (empty($files)) {
-        echo "No cache files to delete.\n";
-        exit;
-    }
-    foreach ($files as $file) {
-        if (unlink($file)) {
-            echo "Deleted: " . basename($file) . "\n";
-        } else {
-            echo "Failed to delete: " . basename($file) . "\n";
-        }
-    }
-    echo "Cache cleared.\n";
-}
+
 
 
 

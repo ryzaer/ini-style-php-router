@@ -4,14 +4,6 @@ class Router
 {
     private $routes = [];
 
-    // bagian layouting
-    protected array $data = [];
-    protected array $sections = [];
-    protected ?string $parentLayout = null;
-    protected string $cacheDir = 'caches';
-    protected bool $enableCache = false;
-    protected array $includedFiles = [];
-
     public function __construct($configPath=null)
     {
         if($configPath){
@@ -117,12 +109,12 @@ class Router
         if ($http_code && is_numeric($http_code)) {
             http_response_code($http_code);
         }
-
+        
         if (!strpos($route, '@')) return false;
-
+        
         [$controller, $action] = explode('@', $route, 2);
-        $controllerFile = __DIR__ . "/controllers/{$controller}.php";
-
+        $controllerFile = "{$this->controllersPath}/{$controller}.php";
+        
         if (file_exists($controllerFile)) {
             require_once $controllerFile;
             if (class_exists($controller)) {
@@ -139,87 +131,102 @@ class Router
 
     public static function dispatch($configPath)
     {
+        
+        
         $self = new self($configPath);
+        
         $self->setConfig();
         
-        $uri = $_SERVER['REQUEST_URI'];
-        $method = $_SERVER['REQUEST_METHOD'];
-        $path = parse_url($uri, PHP_URL_PATH);
-        $method = strtoupper($method);
-        $params = [];
-        $path = str_replace(substr($_SERVER['SCRIPT_NAME'], 0, -10), '', $path);
+        if(isset($_SERVER['REQUEST_URI']) && isset($_SERVER['REQUEST_URI'])){
+            
+            $uri = $_SERVER['REQUEST_URI'];
+            $method = $_SERVER['REQUEST_METHOD'];
+            $path = parse_url($uri, PHP_URL_PATH);
+            $method = strtoupper($method);
+            $params = [];
+            $path = str_replace(substr($_SERVER['SCRIPT_NAME'], 0, -10), '', $path);
 
-        $errorHandler = $self->get('global.error_handler');
-        // conditional templating cache
-        if($self->get('global.enable_cache') === 'true' )
-            $self->enableCache = true;
-        
-        if (!isset($self->routes[$method])) {
-            if ($errorHandler) {
-                $self->includeHandler($errorHandler, $params, 405);
-            } else {
-                http_response_code(405);
-                echo "405 Method Not Allowed";
-            }
-            return;
-        }
-
-        foreach ($self->routes[$method] as $route) {
-            if (preg_match($route['regex'], $path, $matches)) {
-                array_shift($matches);
-                $params = array_combine($route['params'], $matches);
-
-                if (isset($route['options']['cors']) && $route['options']['cors']){
-                    $origin = $route['options']['cors'] === 'true' ? '*' : $route['options']['cors'];  
-                    header("Access-Control-Allow-Origin: $origin");
-                }
-
-                if (!empty($route['options']['auth']) && $route['options']['auth'] === 'true') {
-                    session_start();
-                    if($self->get('global.auth_data')){
-                        $authKeys = explode('|', $self->get('global.auth_data') ?? '');
-                        $authKeys = array_map('trim', $authKeys);
-                        $missing = array_filter($authKeys, function ($key) {
-                            return !isset($_SESSION[$key]);
-                        });
-                        
-                        if (!empty($missing)) {
-                            if ($errorHandler) {
-                                $self->includeHandler($errorHandler, $params, 403);
-                            } else {
-                                http_response_code(403);
-                                echo "403 Forbidden (missing auth data)";
-                            }
-                            return;
-                        }
-                    }
-                }
-
-                if ($self->includeHandler($route['handler'], $params)) return;
-
+            $errorHandler = $self->get('global.error_handler');
+            // conditional templating cache
+            if($self->get('global.enable_cache') === 'true' )
+                $self->enableCache = true;
+            
+            if (!isset($self->routes[$method])) {
                 if ($errorHandler) {
-                    $self->includeHandler($errorHandler, $params, 500);
+                    $self->includeHandler($errorHandler, $params, 405);
                 } else {
-                    http_response_code(500);
-                    echo "500 Controller not found.";
+                    http_response_code(405);
+                    echo "405 Method Not Allowed";
                 }
                 return;
             }
-        }
+            
 
-        if ($errorHandler) {
-            $self->includeHandler($errorHandler, $params, 404);
-        } else {
-            http_response_code(404);
-            echo "404 Not Found";
+            foreach ($self->routes[$method] as $route) {
+                if (preg_match($route['regex'], $path, $matches)) {
+                    array_shift($matches);
+                    $params = array_combine($route['params'], $matches);
+
+                    if (isset($route['options']['cors']) && $route['options']['cors']){
+                        $origin = $route['options']['cors'] === 'true' ? '*' : $route['options']['cors'];  
+                        header("Access-Control-Allow-Origin: $origin");
+                    }
+
+                    if (!empty($route['options']['auth']) && $route['options']['auth'] === 'true') {
+                        session_start();
+                        if($self->get('global.auth_data')){
+                            $authKeys = explode('|', $self->get('global.auth_data') ?? '');
+                            $authKeys = array_map('trim', $authKeys);
+                            $missing = array_filter($authKeys, function ($key) {
+                                return !isset($_SESSION[$key]);
+                            });
+                            
+                            if (!empty($missing)) {
+                                if ($errorHandler) {
+                                    $self->includeHandler($errorHandler, $params, 403);
+                                } else {
+                                    http_response_code(403);
+                                    echo "403 Forbidden (missing auth data)";
+                                }
+                                return;
+                            }
+                        }
+                    }
+
+                    if ($self->includeHandler($route['handler'], $params)) return;
+                    
+                    if ($errorHandler) {
+                        $self->includeHandler($errorHandler, $params, 500);
+                    } else {
+                        http_response_code(500);
+                        echo "500 Controller not found.";
+                    }
+                    return;
+                }
+            }
+
+
+            if ($errorHandler) {
+                $self->includeHandler($errorHandler, $params, 404);
+            } else {
+                http_response_code(404);
+                echo "404 Not Found";
+            }
         }
     }
 
-    // Layouting disini
+    
+    // ini bagian layouting
+    protected array $data = [];
+    protected array $sections = [];
+    protected ?string $parentLayout = null;
+    protected bool $enableCache = false;
+    protected array $includedFiles = [];
+
     protected function getCacheFilePath($layoutFile): string
     {
         $hash = md5($layoutFile . serialize($this->data));
-        return $this->cacheDir . '/tpl_' . $hash . '.html';
+        return $this->cachesPath . '/tpl_' . $hash . '.html';
     }
 
     protected function parseExtends(string &$content): void
@@ -540,4 +547,165 @@ class Router
         return $output;
     }
 
+    // CLI Command
+    protected string $cachesPath = __DIR__ . '/../caches';
+    protected string $controllersPath = __DIR__ . '/../controllers';
+    protected string $templatesPath = __DIR__ . '/../templates';
+    public static function getCLI($prms){
+        if (isset($prms[1]) && $prms[1] == 'clear:caches') {
+            $self = new self();
+            if (!is_dir($self->cachesPath)) {
+                echo "Cache directory not found.\n";
+                exit;
+            }
+            $files = glob($self->cachesPath . '/*.html*');
+            if (empty($files)) {
+                echo "No cache files to delete.\n";
+                exit;
+            }
+            foreach ($files as $file) {
+                if (unlink($file)) {
+                    echo "Deleted: " . basename($file) . "\n";
+                } else {
+                    echo "Failed to delete: " . basename($file) . "\n";
+                }
+            }
+            echo "Cache cleared.\n";
+            exit;
+        }
+
+        if (isset($prms[2])) {
+
+            $configFile = __DIR__ . "/../{$prms[1]}.ini";
+            if(!file_exists($configFile)){
+                echo "File {$prms[1]}.ini, Not exist!";
+                exit;
+            }
+
+            $self = new self($configFile);
+            $routes = $self->getConfig()['router'] ?? [];
+            $global = $self->getConfig()['global'] ?? [];
+            $pwa = $self->getConfig()['pwa'] ?? [];
+            $handlers = [];
+
+            if(isset($global['error_handler']) && $global['error_handler']){
+                $routes['error_handler'] = $global['error_handler'];
+            }
+            if($prms[2] == 'make:pwa'){
+                if (empty($pwa)) {
+                    echo "⚠️ [pwa] path not set on {$prms[1]}.ini\n";
+                    exit;
+                }
+
+                $manifest = [
+                    "name" => $pwa['name'] ?? 'My PHP App',
+                    "short_name" => $pwa['short_name'] ?? 'PHPApp',
+                    "start_url" => $pwa['start_url'] ?? './',
+                    "display" => $pwa['display'] ?? 'standalone',
+                    "background_color" => $pwa['background_color'] ?? '#ffffff',
+                    "theme_color" => $pwa['theme_color'] ?? '#3367D6',
+                    "icons" => []
+                ];
+
+                if (!empty($pwa['icon_192'])) {
+                    $manifest['icons'][] = [
+                        "src" => $pwa['icon_192'],
+                        "sizes" => "192x192",
+                        "type" => "image/png"
+                    ];
+                }
+                if (!empty($pwa['icon_512'])) {
+                    $manifest['icons'][] = [
+                        "src" => $pwa['icon_512'],
+                        "sizes" => "512x512",
+                        "type" => "image/png"
+                    ];
+                }
+
+                file_put_contents(__DIR__.'/../manifest.json', json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+                echo "✔ manifest.json success created based on {$prms[1]}.ini\n";
+
+                // Service Worker
+                $sw = <<<JS
+self.addEventListener('install', function(e) {
+    console.log('Service Worker: Installed');
+    self.skipWaiting();
+});
+self.addEventListener('activate', function(e) {
+    console.log('Service Worker: Activated');
+});
+self.addEventListener('fetch', function(e) {
+    e.respondWith(fetch(e.request));
+});
+JS;
+
+                file_put_contents(__DIR__.'/../service-worker.js', $sw);
+                echo "✔ service-worker.js success created!\n";
+
+                echo "\n📌 Add this in your <script> HTML:\n";
+                echo "<link rel=\"manifest\" href=\"manifest.json\">\n";
+                echo "<meta name=\"theme-color\" content=\"{$manifest['theme_color']}\">\n";
+                if (!empty($pwa['icon_192']))
+                    echo "<link rel=\"icon\" href=\"{$pwa['icon_192']}\" sizes=\"192x192\">\n";
+
+                echo "\n📌 Add this in <script> HTML to register service worker:\n";
+                echo "<script>\n";
+                echo "if ('serviceWorker' in navigator) {\n";
+                echo "  navigator.serviceWorker.register('service-worker.js')\n";
+                echo "    .then(() => console.log('✅ Service Worker registered'))\n";
+                echo "    .catch(err => console.error('⚠️ Fail register SW:', err));\n";
+                echo "}\n";
+                echo "</script>\n";
+                exit;
+            }
+
+            if($prms[2] == 'make:handlers'){
+                foreach ($routes as $key => $line) {
+                    $handler = trim($line);
+                    if (strpos($handler, '@') === false) continue;
+                    [$controller, $method] = explode('@', $handler, 2);
+                    $handlers[$controller][] = $method;
+                }
+
+                foreach ($handlers as $controller => $methods) {
+                    $file = "{$self->controllersPath}/{$controller}.php";
+                    $classDef = "<?php\n\nclass $controller\n{\n";
+
+                    $uniqueMethods = array_unique($methods);
+
+                    foreach ($uniqueMethods as $method) {
+                        $classDef .= "    public function $method(\$self,\$params,\$http_code)\n    {\n        // TODO: implement $method\n    }\n\n";
+                    }
+
+                    $classDef .= "}\n";
+
+                    if (!file_exists($file)) {
+                        file_put_contents($file, $classDef);
+                        echo "✔ Handler created : controllers/$controller.php\n";
+                    } else {
+                        // Append method if not exists
+                        $content = file_get_contents($file);
+                        $updated = false;
+                        foreach ($uniqueMethods as $method) {
+                            if (!preg_match('/function\\s+' . preg_quote($method, '/') . '\\s*\\(/', $content)) {
+                                $append = "\n    public function $method(\$self,\$params,\$http_code)\n    {\n        // TODO: implement $method\n    }\n";
+                                $content = preg_replace('/\\}\\s*$/', $append . "\n}", $content);
+                                $updated = true;
+                            }
+                        }
+                        if ($updated) {
+                            file_put_contents($file, $content);
+                            echo "✔ Updated handler : controllers/$controller.php\n";
+                        } else {
+                            echo "• Skipped (already exists) : controllers/$controller.php\n";
+                        }
+                    }
+                }
+                exit;
+            }
+
+            
+        }
+    }
 }
+if(isset($argv)) Router::getCLI($argv);
