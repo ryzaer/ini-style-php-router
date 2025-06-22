@@ -144,7 +144,7 @@ After `php cli.php config make:handlers` executed, your structure folders will b
   ├── config.ini
   └── Router.php
 ```
-then make folder `templates`, for templating like this
+then make a folder `templates`, for templating like this
 ```
 /your-app
   ├── caches/
@@ -159,7 +159,7 @@ then make folder `templates`, for templating like this
   ├── config.ini
   └── Router.php
 ```
-create file `index.php`, then run the `Router` class
+create a file `index.php`, then run the `Router` class
 ```
 <?php
 require_once 'Router.php';
