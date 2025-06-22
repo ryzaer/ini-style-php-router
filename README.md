@@ -18,7 +18,7 @@ The `Router` class provides a flexible way to define HTTP routes using a configu
 ---
 ## 🔧 Configuration File Structure (`config.ini`)
 
-### Example:
+### Full example:
 ```ini
 [global]
 error_handler = ErrorController@handle
@@ -47,6 +47,10 @@ Each route entry in `[router]` must follow this format:
 ```ini
 METHOD /path/{param} = Controller@method [optional=params]
 ```
+or
+```ini
+METHOD /path/{param} [optional=params] = Controller@method
+```
 - Multiple methods can be joined with `|`, e.g., `GET|POST`
 - Parameters are defined using `{}` brackets
 - Supported options:
@@ -56,7 +60,7 @@ METHOD /path/{param} = Controller@method [optional=params]
 ---
 ## 🔐 Authentication
 
-If `auth=true` is set on a route, the router checks for required session keys defined in:
+If `auth=true` is set on a `config.ini`, the router checks for required session keys defined in:
 ```ini
 [global]
 auth_data = username|role|token
@@ -82,9 +86,10 @@ It passes parameters and error code (`403`, `404`, `405`, `500`) to the handler.
 
 Each route must map to a controller file `controllers/NameController.php`, and the method should look like:
 ```php
-public function method($self,$params) {
+public function method($self,$params,$http_code) {
     // $self is the Router instance
-    // $params is an object with route parameters
+    // $params is an object url pattern from route {params}
+    // $http_code is an numeric http code
 }
 ```
 ---
@@ -111,6 +116,10 @@ public function method($self,$params) {
 ---
 
 ## 🛠 Getting start with CLI Extension
+Example sintax:
+```
+php cli.php [ini_file_name] [commands]
+```
 
 You can build structure with `cli.php` script to:
 - Generate handler stubs (`php cli.php config make:handlers`)
