@@ -10,9 +10,6 @@ class HomeController
             'role' => 'Admin',
             'created_at' => '2024-12-31 15:45:00'
         ]);
-
-        var_dump($c->get('database.name'));
-        var_dump($c);
                 
         print $c->render('templates/home.html');
     }

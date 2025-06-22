@@ -1,6 +1,4 @@
 <?php
-
-// pastikan Router bisa di-load
 // sintaks ;
 //  php cli.php config make:handlers;
 //  php cli.php config make:pwa;
@@ -45,11 +43,6 @@ if (isset($argv[2])) {
             "theme_color" => $pwa['theme_color'] ?? '#3367D6',
             "icons" => []
         ];
-
-        // if (!is_dir(__DIR__ . 'assets/image/icons')) {
-        //     mkdir(__DIR__ . 'assets/image/icons',0777,true);
-        //     echo "✔ Folder 'assets/image/icons/' dibuat\n";
-        // }
 
         if (!empty($pwa['icon_192'])) {
             $manifest['icons'][] = [

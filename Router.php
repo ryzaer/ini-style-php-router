@@ -12,12 +12,12 @@ class Router
     protected bool $enableCache = false;
     protected array $includedFiles = [];
 
-    private static $inst;
-
-    public function __construct($configPath)
+    public function __construct($configPath=null)
     {
-        $this->config = $this->loadConfig($configPath);       
-        $this->loadRoutes($this->config['router'] ?? []);
+        if($configPath){
+            $this->config = $this->loadConfig($configPath);       
+            $this->loadRoutes($this->config['router'] ?? []);
+        }
     }
 
     public function getConfig()
@@ -31,6 +31,7 @@ class Router
             $this->data[$key] = $value;
         }
         unset($this->data['router']);
+        // hilangkan variable config
         unset($this->config);
     }
 
@@ -138,10 +139,8 @@ class Router
 
     public static function dispatch($configPath)
     {
-        if(!self::$inst)
-            self::$inst = new Router($configPath);
-
-        self::$inst->setConfig();
+        $self = new self($configPath);
+        $self->setConfig();
         
         $uri = $_SERVER['REQUEST_URI'];
         $method = $_SERVER['REQUEST_METHOD'];
@@ -150,14 +149,14 @@ class Router
         $params = [];
         $path = str_replace(substr($_SERVER['SCRIPT_NAME'], 0, -10), '', $path);
 
-        $errorHandler = self::$inst->get('global.error_handler');
+        $errorHandler = $self->get('global.error_handler');
         // conditional templating cache
-        if(self::$inst->get('global.enable_cache') === 'true' )
-            self::$inst->enableCache = true;
+        if($self->get('global.enable_cache') === 'true' )
+            $self->enableCache = true;
         
-        if (!isset(self::$inst->routes[$method])) {
+        if (!isset($self->routes[$method])) {
             if ($errorHandler) {
-                self::$inst->includeHandler($errorHandler, $params, 405);
+                $self->includeHandler($errorHandler, $params, 405);
             } else {
                 http_response_code(405);
                 echo "405 Method Not Allowed";
@@ -165,19 +164,18 @@ class Router
             return;
         }
 
-        foreach (self::$inst->routes[$method] as $route) {
+        foreach ($self->routes[$method] as $route) {
             if (preg_match($route['regex'], $path, $matches)) {
                 array_shift($matches);
                 $params = array_combine($route['params'], $matches);
 
-                if (isset($route['options']['cors']) && $route['options']['cors'] === 'true') {
+                if (isset($route['options']['cors']) && $route['options']['cors'] === 'true')
                     header('Access-Control-Allow-Origin: *');
-                }
 
                 if (!empty($route['options']['auth']) && $route['options']['auth'] === 'true') {
                     session_start();
-                    if(self::$inst->get('global.auth_data')){
-                        $authKeys = explode('|', self::$inst->get('global.auth_data') ?? '');
+                    if($self->get('global.auth_data')){
+                        $authKeys = explode('|', $self->get('global.auth_data') ?? '');
                         $authKeys = array_map('trim', $authKeys);
                         $missing = array_filter($authKeys, function ($key) {
                             return !isset($_SESSION[$key]);
@@ -185,7 +183,7 @@ class Router
                         
                         if (!empty($missing)) {
                             if ($errorHandler) {
-                                self::$inst->includeHandler($errorHandler, $params, 403);
+                                $self->includeHandler($errorHandler, $params, 403);
                             } else {
                                 http_response_code(403);
                                 echo "403 Forbidden (missing auth data)";
@@ -195,10 +193,10 @@ class Router
                     }
                 }
 
-                if (self::$inst->includeHandler($route['handler'], $params)) return;
+                if ($self->includeHandler($route['handler'], $params)) return;
 
                 if ($errorHandler) {
-                    self::$inst->includeHandler($errorHandler, $params, 500);
+                    $self->includeHandler($errorHandler, $params, 500);
                 } else {
                     http_response_code(500);
                     echo "500 Controller not found.";
@@ -208,7 +206,7 @@ class Router
         }
 
         if ($errorHandler) {
-            self::$inst->includeHandler($errorHandler, $params, 404);
+            $self->includeHandler($errorHandler, $params, 404);
         } else {
             http_response_code(404);
             echo "404 Not Found";
@@ -251,19 +249,17 @@ class Router
             // parse key="value" pairs
             preg_match_all('/(\w+)\s*=\s*["\'](.*?)["\']/', $params, $pairs, PREG_SET_ORDER);
             $data = [];
-            foreach ($pairs as $pair) {
+            foreach ($pairs as $pair) 
                 $data[$pair[1]] = $pair[2];
-            }
 
-            if (!file_exists($path)) {
+            if (!file_exists($path))
                 return "<!-- Component not found: $path -->";
-            }
 
-            $component = new self($path);
-            foreach ($data as $key => $val) {
+            $component = new self();
+            foreach ($data as $key => $val) 
                 $component->set($key, $val);
-            }
-            return $component->render();
+            
+            return $component->render($path);
         }, $content);
     }
 
