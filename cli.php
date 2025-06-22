@@ -30,7 +30,7 @@ if (isset($argv[2])) {
     }
     if($argv[2] == 'make:pwa'){
         if (empty($pwa)) {
-            echo "⚠️  Bagian [pwa] tidak ditemukan di {$argv[1]}.ini\n";
+            echo "⚠️ [pwa] path not set on {$argv[1]}.ini\n";
             exit;
         }
 
@@ -60,7 +60,7 @@ if (isset($argv[2])) {
         }
 
         file_put_contents('manifest.json', json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
-        echo "✔ manifest.json berhasil dibuat berdasarkan {$argv[1]}.ini\n";
+        echo "✔ manifest.json success created based on {$argv[1]}.ini\n";
 
         // Service Worker
         $sw = <<<JS
@@ -77,20 +77,20 @@ self.addEventListener('fetch', function(e) {
 JS;
 
         file_put_contents('service-worker.js', $sw);
-        echo "✔ service-worker.js berhasil dibuat\n";
+        echo "✔ service-worker.js success created!\n";
 
-        echo "\n📌 Tambahkan ini di <head> HTML kamu:\n";
+        echo "\n📌 Add this in your <script> HTML:\n";
         echo "<link rel=\"manifest\" href=\"manifest.json\">\n";
         echo "<meta name=\"theme-color\" content=\"{$manifest['theme_color']}\">\n";
         if (!empty($pwa['icon_192']))
             echo "<link rel=\"icon\" href=\"{$pwa['icon_192']}\" sizes=\"192x192\">\n";
 
-        echo "\n📌 Tambahkan ini di <script> HTML untuk register service worker:\n";
+        echo "\n📌 Add this in <script> HTML to register service worker:\n";
         echo "<script>\n";
         echo "if ('serviceWorker' in navigator) {\n";
         echo "  navigator.serviceWorker.register('service-worker.js')\n";
         echo "    .then(() => console.log('✅ Service Worker registered'))\n";
-        echo "    .catch(err => console.error('⚠️ Gagal register SW:', err));\n";
+        echo "    .catch(err => console.error('⚠️ Fail register SW:', err));\n";
         echo "}\n";
         echo "</script>\n";
         exit;
