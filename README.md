@@ -108,6 +108,11 @@ public function method($self,$params,$http_code) {
 ---
 
 ## 💾 Caching System
+Can be set in the `config.ini` file, if not set will be false as default
+```ini
+[global]
+enable_cache = true
+```
 
 - Cache path: `caches/tpl_{hash}.html`
 - Metadata path: `caches/tpl_{hash}.html.meta`
