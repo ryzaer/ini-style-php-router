@@ -3,7 +3,6 @@
 class Router
 {
     private $routes = [];
-    private $config = [];
 
     // bagian layouting
     protected array $data = [];
@@ -24,6 +23,15 @@ class Router
     public function getConfig()
     {
         return $this->config;
+    }
+
+    private function setConfig():void
+    {
+        foreach ($this->config as $key => $value) {
+            $this->data[$key] = $value;
+        }
+        unset($this->data['router']);
+        unset($this->config);
     }
 
     private function loadConfig($file)
@@ -132,6 +140,8 @@ class Router
     {
         if(!self::$inst)
             self::$inst = new Router($configPath);
+
+        self::$inst->setConfig();
         
         $uri = $_SERVER['REQUEST_URI'];
         $method = $_SERVER['REQUEST_METHOD'];
@@ -140,9 +150,9 @@ class Router
         $params = [];
         $path = str_replace(substr($_SERVER['SCRIPT_NAME'], 0, -10), '', $path);
 
-        $errorHandler = self::$inst->config['global']['error_handler'] ?? null;
+        $errorHandler = self::$inst->get('global.error_handler');
         // conditional templating cache
-        if(isset(self::$inst->config['global']['enable_cache']) && self::$inst->config['global']['enable_cache'] === 'true' )
+        if(self::$inst->get('global.enable_cache') === 'true' )
             self::$inst->enableCache = true;
         
         if (!isset(self::$inst->routes[$method])) {
@@ -166,8 +176,8 @@ class Router
 
                 if (!empty($route['options']['auth']) && $route['options']['auth'] === 'true') {
                     session_start();
-                    if(isset(self::$inst->config['global']['auth_data']) && self::$inst->config['global']['auth_data']){
-                        $authKeys = explode('|', self::$inst->config['global']['auth_data'] ?? '');
+                    if(self::$inst->get('global.auth_data')){
+                        $authKeys = explode('|', self::$inst->get('global.auth_data') ?? '');
                         $authKeys = array_map('trim', $authKeys);
                         $missing = array_filter($authKeys, function ($key) {
                             return !isset($_SESSION[$key]);
@@ -297,16 +307,13 @@ class Router
         unset($string[0]);
         $value = trim(implode('.',$string));
         if($value){
-            if(isset($this->config[$key][$value]))
-                return $this->config[$key][$value];
             if(isset($this->data[$key][$value])) 
                 return $this->data[$key][$value];
         }else{
-            if(isset($this->config[$key]))
-                return $this->config[$key];
             if(isset($this->data[$key]))
                 return $this->data[$key];
         }
+        return null;
     }
 
     protected function getDataValue(string $path)

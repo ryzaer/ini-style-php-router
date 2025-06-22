@@ -12,6 +12,7 @@ class HomeController
         ]);
 
         var_dump($c->get('database.name'));
+        var_dump($c);
                 
         print $c->render('templates/home.html');
     }

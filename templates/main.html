@@ -9,10 +9,9 @@
         <h2>Nama Asli: {{@user.name}}</h2>
         <h2>Nama Kapital: {{upper user.name}}</h2>
         <h2>Nama Kecil: {{lower user.name}}</h2>
-        <p>Tanggal dibuat: {{date user.created_at "d M Y"}}</p>
-        <h2>Nama Kapital: {{upper user.name}}</h2>
         <h2>Nama Kecil Kapital: {{@user.name|lower|ucwords}}</h2>
-        <h2>Created At: {{@user.created_at|date:"d M Y"}}</h2>
+        <p>Format Tanggal 1: {{date user.created_at "d M Y"}}</p>
+        <p>Format Tanggal 2: {{@user.created_at|date:"d M Y"}}</p>
     </article>
     <ul>
     {{foreach item in items}}
