@@ -112,7 +112,7 @@ public function method($self,$params) {
 
 ## 🛠 Getting start with CLI Extension
 
-You can build CLI scripts (`cli.php`) to:
+You can build structure with `cli.php` script to:
 - Generate handler stubs (`php cli.php config make:handlers`)
 - Generate PWA setup (`php cli.php config make:pwa`) based on `[pwa]` section
 - Template Cache cleaner (`php cli.php clear:caches`)
@@ -151,7 +151,7 @@ create file `index.php`, then run the `Router` class
 require_once 'Router.php';
 Router::dispatch('config.ini');
 ```
-dont forget make `.htaccess` file to protect you configuration `.ini` file or if nginx users can convert on [winginx](https://www.winginx.com/en/htaccess)
+don't forget to create `.htaccess` file to protect you configuration `.ini` file or if nginx users can convert on [winginx](https://www.winginx.com/en/htaccess)
 ```
 <IfModule mod_rewrite.c>
     Options +FollowSymLinks -MultiViews
