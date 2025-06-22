@@ -169,8 +169,10 @@ class Router
                 array_shift($matches);
                 $params = array_combine($route['params'], $matches);
 
-                if (isset($route['options']['cors']) && $route['options']['cors'] === 'true')
-                    header('Access-Control-Allow-Origin: *');
+                if (isset($route['options']['cors']) && $route['options']['cors']){
+                    $origin = $route['options']['cors'] === 'true' ? '*' : $route['options']['cors'];  
+                    header("Access-Control-Allow-Origin: $origin");
+                }
 
                 if (!empty($route['options']['auth']) && $route['options']['auth'] === 'true') {
                     session_start();

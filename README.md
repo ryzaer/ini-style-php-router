@@ -51,7 +51,7 @@ METHOD /path/{param} = Controller@method [optional=params]
 - Parameters are defined using `{}` brackets
 - Supported options:
   - `auth=true`: Requires session variables defined in `global.auth_data`
-  - `cors=true`: Sends `Access-Control-Allow-Origin: *`
+  - `cors=true`: Sends `Access-Control-Allow-Origin: *` or custom domain `cors=www.domain.com`
 
 ---
 ## 🔐 Authentication
@@ -151,6 +151,19 @@ create file `index.php`, then run the `Router` class
 require_once 'Router.php';
 Router::dispatch('config.ini');
 ```
+dont forget make `.htaccess` file to protect you configuration `.ini` file or if nginx users can convert on [winginx](https://www.winginx.com/en/htaccess)
+```
+<IfModule mod_rewrite.c>
+    Options +FollowSymLinks -MultiViews
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [QSA,L]  
+    <FilesMatch "\.(ini|env|cfg|conf)$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+</IfModule>
+```
 so your folder structure now will be
 ```
 /your-app
@@ -162,6 +175,7 @@ so your folder structure now will be
   │   └── AuthController.php
   ├── templates/
   │   └── components/
+  ├── .htaccess
   ├── cli.php
   ├── config.ini
   ├── index.php
