@@ -141,7 +141,10 @@ class Router
         $path = str_replace(substr($_SERVER['SCRIPT_NAME'], 0, -10), '', $path);
 
         $errorHandler = self::$inst->config['global']['error_handler'] ?? null;
-
+        // conditional templating cache
+        if(isset(self::$inst->config['global']['enable_cache']) && self::$inst->config['global']['enable_cache'] === 'true' )
+            self::$inst->enableCache = true;
+        
         if (!isset(self::$inst->routes[$method])) {
             if ($errorHandler) {
                 self::$inst->includeHandler($errorHandler, $params, 405);
@@ -285,6 +288,25 @@ class Router
     public function set(string $key, $value): void
     {
         $this->data[$key] = $value;
+    }
+
+    public function get($string)
+    {
+        $string = explode('.',$string);
+        $key = $string[0];
+        unset($string[0]);
+        $value = trim(implode('.',$string));
+        if($value){
+            if(isset($this->config[$key][$value]))
+                return $this->config[$key][$value];
+            if(isset($this->data[$key][$value])) 
+                return $this->data[$key][$value];
+        }else{
+            if(isset($this->config[$key]))
+                return $this->config[$key];
+            if(isset($this->data[$key]))
+                return $this->data[$key];
+        }
     }
 
     protected function getDataValue(string $path)

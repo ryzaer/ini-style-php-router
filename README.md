@@ -3,7 +3,7 @@
 # iniStyle PHP Router Class Documentation
 This document describes the usage, structure, and configuration of the `Router` class used for routing in a PHP application with `.ini`-based configuration.
 
-Templating engine integrated, supporting Blade-like syntax including `@extends`, `@section`, filters, includes, components, and caching.
+This class includes an integrated templating engine that supports Blade-like syntax, including @extends, @section, filters, includes, components, and caching.
 
 ## 📂 Class Overview
 The `Router` class provides a flexible way to define HTTP routes using a configuration `.ini` file and dispatches requests to corresponding controller actions.
@@ -23,6 +23,7 @@ The `Router` class provides a flexible way to define HTTP routes using a configu
 [global]
 error_handler = ErrorController@handle
 auth_data = username|role|token
+enable_cache = true
 
 [router]
 GET / = HomeController@index
@@ -144,7 +145,7 @@ then make folder `templates`, for templating like this
   ├── config.ini
   └── Router.php
 ```
-create file `index.php`, then run the Router class
+create file `index.php`, then run the `Router` class
 ```
 <?php
 require_once 'Router.php';
