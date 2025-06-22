@@ -73,7 +73,7 @@ If any key is missing, the router will:
 
 ## ⚠️ Error Handling
 
-If a route fails to match or controller is not found, the router uses:
+This is an example of using error handler:
 ```ini
 [global]
 error_handler = ErrorController@handle
@@ -127,7 +127,7 @@ php cli.php [ini_file_name] [commands]
 ```
 
 You can build structure with `cli.php` script to:
-- Generate handler stubs (`php cli.php config make:handlers`)
+- Generate route handler stubs (`php cli.php config make:handlers`) including `error_handler`
 - Generate PWA setup (`php cli.php config make:pwa`) based on `[pwa]` section
 - Template Cache cleaner (`php cli.php clear:caches`)
 
