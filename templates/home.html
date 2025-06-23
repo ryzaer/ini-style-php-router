@@ -13,10 +13,8 @@
     <p>Created At: {{@user.created_at|date:"d M Y"}}</p>
     <a href="./about">about</a>
     <pre><code>
-        Aktifkan cache dari luar:
-        $layout->enableCache = true;
-        Hapus semua cache:
-        array_map('unlink', glob('cache/*.html'));
+        Aktifkan cache section dari config.ini:
+        enable_cache = true
     </code></pre>
     <h4>Feature Templating ini</h4>
     <ul>
