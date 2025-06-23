@@ -134,13 +134,13 @@ Router::dispatch('config.ini');
 ```
 Now you can build structure with `index.php` script to:
 ```
-php index.php [ini_file_name] [commands]
+php index.php [commands] [ini_file_name]
 ```
-- Generate route handler stubs (`php index.php config make:handlers`) including `error_handler`
-- Generate PWA setup (`php index.php config make:pwa`) based on `[pwa]` section
+- Generate route handler stubs (`php index.php make:handlers config`) including `error_handler`
+- Generate PWA setup (`php index.php make:pwa config`) based on `[pwa]` section
 - Template Cache cleaner (`php index.php clear:caches`)
 
-After `php index.php config make:handlers` executed, your structure folders will be like this
+After `php index.php make:handlers config` executed, your structure folders will be like this
 ```
 /your-app
   ├── caches/

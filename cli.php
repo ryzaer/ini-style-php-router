@@ -3,7 +3,7 @@
 //  php cli.php config make:handlers;
 //  php cli.php config make:pwa;
 //  php cli.php clear:caches;
-require_once 'Router.php'; 
+require_once 'classes/Router.php'; 
 
 $cachesPath = __DIR__ . '/caches';
 is_dir($cachesPath) || mkdir($cachesPath,0777);

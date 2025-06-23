@@ -574,26 +574,27 @@ class Router
             exit;
         }
 
-        if (isset($prms[2])) {
-
-            $configFile = __DIR__ . "/../{$prms[1]}.ini";
+        if (isset($prms[2]) && ($prms[1] === 'make:pwa' || $prms[1] === 'make:handlers')) {
+            $configFile = __DIR__ . "/../{$prms[2]}.ini";
             if(!file_exists($configFile)){
-                echo "File {$prms[1]}.ini, Not exist!";
+                echo "File {$prms[2]}.ini, Not exist!";
+                $configFile = null;
                 exit;
+            }else{
+                $self = new self($configFile);
+                $routes = $self->getConfig()['router'] ?? [];
+                $global = $self->getConfig()['global'] ?? [];
+                $pwa = $self->getConfig()['pwa'] ?? [];
+                $handlers = [];
+
+                if(isset($global['error_handler']) && $global['error_handler']){
+                    $routes['error_handler'] = $global['error_handler'];
+                }
             }
 
-            $self = new self($configFile);
-            $routes = $self->getConfig()['router'] ?? [];
-            $global = $self->getConfig()['global'] ?? [];
-            $pwa = $self->getConfig()['pwa'] ?? [];
-            $handlers = [];
-
-            if(isset($global['error_handler']) && $global['error_handler']){
-                $routes['error_handler'] = $global['error_handler'];
-            }
-            if($prms[2] == 'make:pwa'){
+            if($prms[1] == 'make:pwa'){
                 if (empty($pwa)) {
-                    echo "⚠️ [pwa] path not set on {$prms[1]}.ini\n";
+                    echo "⚠️ [pwa] path not set on {$prms[2]}.ini\n";
                     exit;
                 }
 
@@ -623,7 +624,7 @@ class Router
                 }
 
                 file_put_contents(__DIR__.'/../manifest.json', json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
-                echo "✔ manifest.json success created based on {$prms[1]}.ini\n";
+                echo "✔ manifest.json success created based on {$prms[2]}.ini\n";
 
                 // Service Worker
                 $sw = <<<JS
@@ -659,7 +660,11 @@ JS;
                 exit;
             }
 
-            if($prms[2] == 'make:handlers'){
+            if($prms[1] == 'make:handlers'){
+
+                is_dir($self->cachesPath) || mkdir($self->cachesPath,0777);
+                is_dir($self->controllersPath) || mkdir($self->controllersPath,0777);
+
                 foreach ($routes as $key => $line) {
                     $handler = trim($line);
                     if (strpos($handler, '@') === false) continue;
@@ -703,8 +708,6 @@ JS;
                 }
                 exit;
             }
-
-            
         }
     }
 }
