@@ -549,24 +549,17 @@ class Router
 
     // DB Connection Mysql
     protected $pdo;
-    public function dbConnect(...$param)
+    public function dbConnect(...$prms)
     {
-        // user => $params[0]
-        // pass => $params[1]
-        // dbname =>$params[2]
-        // host => $params[3] // opsional, default 'localhost'
-        // port => $params[4] // opsional, default '3306'
-        // type => $params[5] // opsional, default 'mysql'
-
-        $dsn = sprintf(
-            '%s:host=%s;port=%s%s',
-            $param[5] ?? 'mysql',
-            $param[3] ?? 'localhost',
-            $param[4] ?? '3306',
-            isset($param[2]) ? ';dbname=' . $param[2] : ''
-        );
+        $data = isset($this->data['database']) ? $this->data['database'] : [] ;
+        $user = isset($prms[0])?$prms[0]:(isset($data['user']) && $data['user'] ? $data['user']:'');
+        $pass = isset($prms[1])?$prms[1]:(isset($data['pass']) && $data['pass'] ? $data['pass']:'');
+        $name = isset($prms[2])?$prms[2]:(isset($data['name']) && $data['name'] ? $data['name']:'');
+        $host = isset($prms[3])?$prms[3]:(isset($data['host']) && $data['host'] ? $data['host']:'localhost');
+        $port = isset($prms[4])?$prms[4]:(isset($data['port']) && $data['port'] ? $data['port']:'3306');
+        $type = isset($prms[5])?$prms[5]:(isset($data['type']) && $data['type'] ? $data['type']:'mysql');        
         try {
-            $this->pdo = new PDO($dsn, $param[0] ?? '', $param[1] ?? '');
+            $this->pdo = new PDO(sprintf('%s:host=%s;port=%s%s',$type,$host,$port,$name?";dbname=$name":''),$user,$pass);
             $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             return $this;
         } catch (PDOException $e) {
