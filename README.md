@@ -57,6 +57,11 @@ METHOD /path/{param} [optional=params] = Controller@method
   - `auth=true`: Requires session variables defined in `global.auth_data`
   - `cors=true`: Sends `Access-Control-Allow-Origin: *` or custom domain `cors=www.domain.com`
 
+full example
+```ini
+GET|POST|PUT /user/{id}/token/{hash} [cors=www.domain.com,auth=true] = userController@show
+```
+
 ---
 ## 🔐 Authentication
 
