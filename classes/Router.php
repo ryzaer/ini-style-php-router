@@ -30,34 +30,45 @@ class Router
     private function loadConfig($file)
     {
         $lines = file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        $section = null;
+        $section = [];
         $config = [];
 
         foreach ($lines as $line) {
             $line = trim($line);
             if ($line === '' || $line[0] === ';') continue;
-
-            if (preg_match('/^\[([a-zA-Z0-9_]+)\]$/', $line, $matches)) {
-                $section = strtolower($matches[1]);
+            
+            if (preg_match('/^\[([a-zA-Z0-9_:]+)\]$/', $line, $matches)) {
+                $section = explode(":",preg_replace('/\s+/','_',strtolower($matches[1])));
                 continue;
             }
-
-            if ($section === null) continue;
-
-            if (!isset($config[$section])) {
-                $config[$section] = [];
-            }
+            if ($section[0] === null) continue;
 
             if (strpos($line, '=') !== false) {
-                if ($section == 'router') {
-                    $config[$section][] = $line;
+                // $line = preg_replace('/;.*(?:\r?\n)?/',"\n",$line);
+                if ($section[0] == 'router') {
+                    $config[$section[0]][] = $line;
                 } else {
                     [$key, $value] = array_map('trim', explode('=', $line, 2));
-                    $config[$section][$key] = $value;
+                    $addsubs=true;
+                    if ($section[0] === 'global' || $section[0] === 'pwa') {
+                        $config[$section[0]][$key] = $value;
+                        $addsubs=false;
+                    } else {
+                        if(count($section)>1){
+                            $config[$section[0]][$section[1]][$key] = $value;
+                        }else{
+                            $addsubs=false;
+                        }
+                    }
+                    if(!$addsubs)
+                        $config[$section[0]][$key] = $value;
+                }
+            }else{
+                if (!isset($config[$section[0]])) {
+                    $config[$section[0]] = [];
                 }
             }
         }
-
         return $config;
     }
 
@@ -551,16 +562,35 @@ class Router
     protected $pdo;
     public function dbConnect(...$prms)
     {
-        $data = isset($this->data['database']) ? $this->data['database'] : [] ;
-        $user = isset($prms[0])?$prms[0]:(isset($data['user']) && $data['user'] ? $data['user']:'');
-        $pass = isset($prms[1])?$prms[1]:(isset($data['pass']) && $data['pass'] ? $data['pass']:'');
-        $name = isset($prms[2])?$prms[2]:(isset($data['name']) && $data['name'] ? $data['name']:'');
-        $host = isset($prms[3])?$prms[3]:(isset($data['host']) && $data['host'] ? $data['host']:'localhost');
-        $port = isset($prms[4])?$prms[4]:(isset($data['port']) && $data['port'] ? $data['port']:'3306');
-        $type = isset($prms[5])?$prms[5]:(isset($data['type']) && $data['type'] ? $data['type']:'mysql');        
+        
+        $data = isset($this->data['database'][$prms[0]]) ? $this->data['database'][$prms[0]] : [] ; 
+        if(!$data)
+            $data = isset($this->data['database']) ? $this->data['database'] : [] ; 
+        if(!$data){
+            if(isset($prms[0]) && $prms[0])
+                $data['user'] = $prms[0];
+            if(isset($prms[1]) && $prms[1])
+                $data['pass'] = $prms[1];
+            if(isset($prms[2]) && $prms[2])
+                $data['name'] = $prms[2];
+            if(isset($prms[3]) && $prms[3])
+                $data['host'] = $prms[3];
+            if(isset($prms[4]) && $prms[4])
+                $data['port'] = $prms[4];
+            if(isset($prms[5]) && $prms[5])
+                $data['type'] = $prms[5];
+        }
+
+        $user = $data['user']?$data['user']:'';
+        $pass = $data['pass']?$data['pass']:'';
+        $name = $data['name']?$data['name']:'';
+        $host = $data['host']?$data['host']:'localhost';
+        $port = $data['port']?$data['port']:'3306';
+        $type = $data['type']?$data['type']:'mysql';  
+
         try {
             $this->pdo = new PDO(sprintf('%s:host=%s;port=%s%s',$type,$host,$port,$name?";dbname=$name":''),$user,$pass);
-            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->pdo->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
             return $this;
         } catch (PDOException $e) {
             var_export("Connection Error: " . $e->getMessage());
