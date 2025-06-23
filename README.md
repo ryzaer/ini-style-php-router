@@ -60,7 +60,7 @@ METHOD /path/{param} [optional=params] = Controller@method
 ---
 ## 🔐 Authentication
 
-If `auth=true` is set on a `config.ini`, the router checks for required session keys defined in:
+If `auth=true` is set on a `config.ini`, the router checks for required session keys defined in `global` section:
 ```ini
 [global]
 auth_data = username|role|token
