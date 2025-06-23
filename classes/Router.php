@@ -574,6 +574,7 @@ class Router
     {
         return $this->pdo->query(...$query);
     }
+    
     // CLI Command
     protected string $cachesPath = __DIR__ . '/../caches';
     protected string $controllersPath = __DIR__ . '/../controllers';
