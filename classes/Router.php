@@ -547,6 +547,40 @@ class Router
         return $output;
     }
 
+    // DB Connection Mysql
+    protected $pdo;
+    public function dbConnect(...$param)
+    {
+        // user => $params[0]
+        // pass => $params[1]
+        // dbname =>$params[2]
+        // host => $params[3] // opsional, default 'localhost'
+        // port => $params[4] // opsional, default '3306'
+        // type => $params[5] // opsional, default 'mysql'
+
+        $dsn = sprintf(
+            '%s:host=%s;port=%s%s',
+            $param[5] ?? 'mysql',
+            $param[3] ?? 'localhost',
+            $param[4] ?? '3306',
+            isset($param[2]) ? ';dbname=' . $param[2] : ''
+        );
+        try {
+            $this->pdo = new PDO($dsn, $param[0] ?? '', $param[1] ?? '');
+            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            return $this;
+        } catch (PDOException $e) {
+            var_export("Connection Error: " . $e->getMessage());
+        }
+    }
+    public function prepare(...$query)
+    {
+        return $this->pdo->prepare(...$query);
+    }
+    public function query(...$query)
+    {
+        return $this->pdo->query(...$query);
+    }
     // CLI Command
     protected string $cachesPath = __DIR__ . '/../caches';
     protected string $controllersPath = __DIR__ . '/../controllers';

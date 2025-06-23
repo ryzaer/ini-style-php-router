@@ -170,7 +170,7 @@ then make a folder `templates`, for templating like this
   ├── config.ini
   └── index.php
 ```
-don't forget to create `.htaccess` file to protect you configuration `.ini` file or if nginx users can convert on [winginx](https://www.winginx.com/en/htaccess)
+don't forget to create `.htaccess` file to protect your configuration `.ini` file or if nginx users can convert on [winginx](https://www.winginx.com/en/htaccess)
 ```
 <IfModule mod_rewrite.c>
     Options +FollowSymLinks -MultiViews
