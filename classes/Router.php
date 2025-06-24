@@ -446,12 +446,13 @@ class Router
             $list = $this->getDataValue($dataKey);
             if (!is_array($list)) return '';
 
-            $result = '';
+            $result = [];
             foreach ($list as $item) {
-                $tempBlock = str_replace('{{@' . $itemVar . '}}', $item, $block);
-                $result .= $this->parse($tempBlock);
+                // $tempBlock = str_replace('{{@' . $itemVar . '}}', $item, $block);
+                $tempBlock = preg_replace("/\r+|\n+/s","",str_replace('{{@' . $itemVar . '}}', $item, $block));
+                $result[] = $this->parse($tempBlock);
             }
-            return $result;
+            return implode("\n",$result);
         }, $content);
     }
 
