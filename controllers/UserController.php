@@ -10,8 +10,7 @@ class UserController
         // $data->bindValue(':id' ,$param->id);
         // $data->execute();
         $data->execute([':id' => $param->id]);
-        // var_dump($data->fetchAll(PDO::FETCH_ASSOC));
-        
+        // var_dump($data->fetchAll(PDO::FETCH_ASSOC));        
         $self->api_response(200,$data->fetchAll(PDO::FETCH_ASSOC));
     }
 }

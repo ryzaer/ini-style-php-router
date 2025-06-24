@@ -29,11 +29,13 @@ class Router
         return isset($this->config)?$this->config:'';
     }
 
-    function api_response(int $code,array $result,$custom=[],$arg=JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)
+    function api_response(int $code,array $result,$custom=[],bool $arg=false)
     {
         $response = array_merge($custom,['result'=>$result]);
         http_response_code($code);
         header('Content-Type: application/json; charset=utf-8');
+        if(is_bool($arg) && $arg)
+            $arg = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT;
         echo json_encode($response,$arg);
         exit;
     }
