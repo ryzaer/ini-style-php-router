@@ -6,9 +6,20 @@ class Router
 
     function __construct($configPath=null)
     {
+        $this->basename = basename('.');
+        $this->cachesPath = "{$this->basename}/{$this->cachesPath}";
+        $this->controllersPath = "{$this->basename}/{$this->controllersPath}";
+        $this->templatesPath = "{$this->basename}/{$this->templatesPath}";
         if($configPath){
-            $this->config = $this->loadConfig($configPath);       
-            $this->loadRoutes($this->config['router'] ?? []);
+            $configFile = "{$this->basename}/$configPath";
+            if(!file_exists($configFile)){
+                echo "File {$configPath}, Not exist!";
+                $configFile = null;
+                exit;
+            }else{
+                $this->config = $this->loadConfig($configPath);       
+                $this->loadRoutes($this->config['router'] ?? []);
+            }
         }
     }
 
@@ -18,12 +29,12 @@ class Router
         return isset($this->config)?$this->config:'';
     }
 
-    function api_response(int $code,array $result,$custom=[])
+    function api_response(int $code,array $result,$custom=[],$arg=JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)
     {
         $response = array_merge($custom,['result'=>$result]);
         http_response_code($code);
         header('Content-Type: application/json; charset=utf-8');
-        echo json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+        echo json_encode($response,$arg);
         exit;
     }
 
@@ -617,10 +628,10 @@ class Router
     }
     
     // CLI Command
-    protected string $cachesPath = __DIR__ . '/../caches';
-    protected string $controllersPath = __DIR__ . '/../controllers';
-    protected string $templatesPath = __DIR__ . '/../templates';
-    static function getCLI($prms){
+    protected string $cachesPath = 'caches';
+    protected string $controllersPath = 'controllers';
+    protected string $templatesPath = 'templates';
+    protected static function getCLI($prms){
         if (isset($prms[1]) && $prms[1] == 'clear:caches') {
             $self = new self();
             if (!is_dir($self->cachesPath)) {
@@ -644,21 +655,15 @@ class Router
         }
 
         if (isset($prms[2]) && ($prms[1] === 'make:pwa' || $prms[1] === 'make:handlers')) {
-            $configFile = __DIR__ . "/../{$prms[2]}.ini";
-            if(!file_exists($configFile)){
-                echo "File {$prms[2]}.ini, Not exist!";
-                $configFile = null;
-                exit;
-            }else{
-                $self = new self($configFile);
-                $routes = $self->getConfig()['router'] ?? [];
-                $global = $self->getConfig()['global'] ?? [];
-                $pwa = $self->getConfig()['pwa'] ?? [];
-                $handlers = [];
+            
+            $self = new self("{$prms[2]}.ini");
+            $routes = $self->getConfig()['router'] ?? [];
+            $global = $self->getConfig()['global'] ?? [];
+            $pwa = $self->getConfig()['pwa'] ?? [];
+            $handlers = [];
 
-                if(isset($global['error_handler']) && $global['error_handler']){
-                    $routes['error_handler'] = $global['error_handler'];
-                }
+            if(isset($global['error_handler']) && $global['error_handler']){
+                $routes['error_handler'] = $global['error_handler'];
             }
 
             if($prms[1] == 'make:pwa'){
@@ -692,7 +697,7 @@ class Router
                     ];
                 }
 
-                file_put_contents(__DIR__.'/../manifest.json', json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+                file_put_contents("{$self->basename}/manifest.json", json_encode($manifest, JSON_PRETTY_echo | JSON_UNESCAPED_SLASHES));
                 echo "✔ manifest.json success created based on {$prms[2]}.ini\n";
 
                 // Service Worker
@@ -709,7 +714,7 @@ self.addEventListener('fetch', function(e) {
 });
 JS;
 
-                file_put_contents(__DIR__.'/../service-worker.js', $sw);
+                file_put_contents("{$self->basename}/service-worker.js", $sw);
                 echo "✔ service-worker.js success created!\n";
 
                 echo "\n📌 Add this in your <script> HTML:\n";
