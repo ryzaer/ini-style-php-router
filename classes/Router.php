@@ -28,6 +28,15 @@ class Router
         // getconfig hanya bisa dibaca di cli mode
         return isset($this->config)?$this->config:'';
     }
+    function getAuthData()
+    {
+        $authKeys = isset($this->data['global']['auth_data']) ? explode("|",$this->data['global']['auth_data']) : [] ;
+        $authData = [];
+        foreach ($authKeys as $key) {
+           $authData[$key] = isset($_SESSION[$key])&&$_SESSION[$key] ? $_SESSION[$key] : ''; 
+        }
+        return $authData;
+    }
 
     function api_response(int $code,array $result,$custom=[],bool $arg=false)
     {
