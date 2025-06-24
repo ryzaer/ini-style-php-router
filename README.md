@@ -13,6 +13,7 @@ The `Router` class provides a flexible way to define HTTP routes using a configu
 /your-app
   ├── classes/
   │   └── Router.php
+  ├── autoload.php
   └── config.ini
 ```
 ---
@@ -129,8 +130,32 @@ enable_cache = true
 Create a file `index.php`, then run the `Router` class
 ```
 <?php
-require_once 'Router.php';
-Router::dispatch('config.ini');
+require_once 'autoload.php';
+Router::dispatch('config.ini',isset($argv)?$argv:[]);
+```
+We are using a simple `autoload.php` custom file,but you can use composer instead, create and configure `composer.json`
+```
+{
+    "autoload": {
+        "psr-4": {
+            "": "classes/"
+        }
+    },
+    "config": {
+        "platform": {
+            "php": "7.4.3"
+        }
+    }
+}
+```
+then run
+```
+composer dump-autoload
+```
+now change the `autoload.php`
+```
+<?php
+require_once 'vendor/autoload.php';
 ```
 Now you can build structure with `index.php` script to:
 ```
@@ -151,6 +176,7 @@ After `php index.php make:handlers config` executed, your structure folders will
   │   └── HomeController.php
   │   └── ProfileController.php
   │   └── AuthController.php
+  ├── autoload.php
   ├── config.ini
   └── index.php
 ```
@@ -167,6 +193,7 @@ then make a folder `templates`, for templating like this
   │   └── AuthController.php
   ├── templates/
   │   └── components/
+  ├── autoload.php
   ├── config.ini
   └── index.php
 ```
@@ -197,6 +224,7 @@ so your folder structure now will be
   ├── templates/
   │   └── components/
   ├── .htaccess
+  ├── autoload.php
   ├── config.ini
   └── index.php
 ```

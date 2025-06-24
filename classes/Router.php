@@ -14,7 +14,8 @@ class Router
 
     function getConfig()
     {
-        return $this->config;
+        // getconfig hanya bisa dibaca di cli mode
+        return isset($this->config)?$this->config:'';
     }
 
     function api_response(int $code,array $result,$custom=[])
@@ -31,6 +32,7 @@ class Router
         foreach ($this->config as $key => $value) {
             $this->data[$key] = $value;
         }
+        // hilangkan variable data router
         unset($this->data['router']);
         // hilangkan variable config
         unset($this->config);
@@ -152,6 +154,7 @@ class Router
     static function dispatch($configPath,$cli=[])
     {
         !$cli || self::getCLI($cli);
+        var_dump(__DIR__);
         $self = new self($configPath);
         $self->fn = \__fn::get();
         $self->setConfig();
