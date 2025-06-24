@@ -154,7 +154,6 @@ class Router
     static function dispatch($configPath,$cli=[])
     {
         !$cli || self::getCLI($cli);
-        var_dump(__DIR__);
         $self = new self($configPath);
         $self->fn = \__fn::get();
         $self->setConfig();
