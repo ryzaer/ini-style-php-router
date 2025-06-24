@@ -1,3 +1,3 @@
 <?php
-require_once 'classes/Router.php';
-Router::dispatch('config.ini');
+require_once 'autoload.php';
+Router::dispatch('config.ini',isset($argv)?$argv:[]);

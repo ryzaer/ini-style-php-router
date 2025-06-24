@@ -4,7 +4,7 @@ class Router
 {
     private $routes = [];
 
-    public function __construct($configPath=null)
+    function __construct($configPath=null)
     {
         if($configPath){
             $this->config = $this->loadConfig($configPath);       
@@ -12,9 +12,18 @@ class Router
         }
     }
 
-    public function getConfig()
+    function getConfig()
     {
         return $this->config;
+    }
+
+    function api_response(int $code,array $result,$custom=[])
+    {
+        $response = array_merge($custom,['result'=>$result]);
+        http_response_code($code);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+        exit;
     }
 
     private function setConfig():void
@@ -140,12 +149,11 @@ class Router
         return false;
     }
 
-    public static function dispatch($configPath)
+    static function dispatch($configPath,$cli=[])
     {
-        
-        
+        !$cli || self::getCLI($cli);
         $self = new self($configPath);
-        
+        $self->fn = \__fn::get();
         $self->setConfig();
         
         if(isset($_SERVER['REQUEST_URI']) && isset($_SERVER['REQUEST_URI'])){
@@ -311,12 +319,12 @@ class Router
         return $content;
     }
 
-    public function set(string $key, $value): void
+    function set(string $key, $value): void
     {
         $this->data[$key] = $value;
     }
 
-    public function get($string)
+    function get($string)
     {
         $string = explode('.',$string);
         $key = $string[0];
@@ -495,7 +503,7 @@ class Router
         return $content;
     }
 
-    public function render($layoutFile=null): string
+    function render($layoutFile=null): string
     {
         if (!file_exists($layoutFile)) {
             return "<!-- Layout file not found: {$layoutFile} -->";
@@ -560,7 +568,7 @@ class Router
 
     // DB Connection Mysql
     protected $pdo;
-    public function dbConnect(...$prms)
+    function dbConnect(...$prms)
     {
         
         $data = isset($this->data['database'][$prms[0]]) ? $this->data['database'][$prms[0]] : [] ; 
@@ -596,11 +604,11 @@ class Router
             var_export("Connection Error: " . $e->getMessage());
         }
     }
-    public function prepare(...$query)
+    function prepare(...$query)
     {
         return $this->pdo->prepare(...$query);
     }
-    public function query(...$query)
+    function query(...$query)
     {
         return $this->pdo->query(...$query);
     }
@@ -609,7 +617,7 @@ class Router
     protected string $cachesPath = __DIR__ . '/../caches';
     protected string $controllersPath = __DIR__ . '/../controllers';
     protected string $templatesPath = __DIR__ . '/../templates';
-    public static function getCLI($prms){
+    static function getCLI($prms){
         if (isset($prms[1]) && $prms[1] == 'clear:caches') {
             $self = new self();
             if (!is_dir($self->cachesPath)) {
@@ -737,7 +745,7 @@ JS;
                     $uniqueMethods = array_unique($methods);
 
                     foreach ($uniqueMethods as $method) {
-                        $classDef .= "    public function $method(\$self,\$params,\$http_code)\n    {\n        // TODO: implement $method\n    }\n\n";
+                        $classDef .= "    function $method(\$self,\$params,\$http_code)\n    {\n        // TODO: implement $method\n    }\n\n";
                     }
 
                     $classDef .= "}\n";
@@ -751,7 +759,7 @@ JS;
                         $updated = false;
                         foreach ($uniqueMethods as $method) {
                             if (!preg_match('/function\\s+' . preg_quote($method, '/') . '\\s*\\(/', $content)) {
-                                $append = "\n    public function $method(\$self,\$params,\$http_code)\n    {\n        // TODO: implement $method\n    }\n";
+                                $append = "\n    function $method(\$self,\$params,\$http_code)\n    {\n        // TODO: implement $method\n    }\n";
                                 $content = preg_replace('/\\}\\s*$/', $append . "\n}", $content);
                                 $updated = true;
                             }
@@ -767,6 +775,6 @@ JS;
                 exit;
             }
         }
+        exit;
     }
 }
-if(isset($argv)) Router::getCLI($argv);
