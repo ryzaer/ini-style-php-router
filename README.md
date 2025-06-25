@@ -24,7 +24,10 @@ The `Router` class provides a flexible way to define HTTP routes using a configu
 [global]
 error_handler = ErrorController@handle
 auth_data = username|role|token
-enable_cache = true
+cache_enable = true
+cache_path = caches
+controller_path = controllers
+template_path = templates
 
 [router]
 GET / = HomeController@index
@@ -117,7 +120,7 @@ public function method($self,$params,$http_code) {
 Can be set in the `config.ini` file, if not set will be false as default
 ```ini
 [global]
-enable_cache = true
+cache_enable = true
 ```
 
 - Cache path: `caches/tpl_{hash}.html`

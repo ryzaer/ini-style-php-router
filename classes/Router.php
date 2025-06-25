@@ -25,6 +25,9 @@ class Router
             $this->controllersPath = $this->config['global']['controller_path'];
         if(isset($this->config['global']['template_path']))
             $this->templatesPath = $this->config['global']['template_path'];
+        if(isset($this->config['global']['allow_extension']))
+            $this->extension = $this->config['global']['allow_extension'];
+
         
         $this->cachesPath = "{$this->basename}/{$this->cachesPath}";
         $this->controllersPath = "{$this->basename}/{$this->controllersPath}";
@@ -601,6 +604,9 @@ class Router
 
     // DB Connection Mysql
     protected $pdo;
+    protected $extension;
+    protected $allowBlob=false;
+    protected $reFormat=null;
     function dbConnect(...$prms)
     {
         
@@ -644,6 +650,41 @@ class Router
     function query(...$query)
     {
         return $this->pdo->query(...$query);
+    }
+    
+    function quote(...$query)
+    {
+        return $this->pdo->quote(...$query);
+    }
+
+    function blob($reFormat=null)
+    {
+        if($reFormat)
+            $this->reFormat=$reFormat;
+        $this->allowBlob=true;
+        return $this;
+    }
+
+    function insert(...$params)
+    {
+        $pdo = new \dbHandler($this->pdo,$this->extension);
+        if($this->allowBlob)
+            $pdo->blob($this->reFormat);
+        return $pdo->insert(...$params);
+    }
+    
+    function update(...$params)
+    {
+        $pdo = new \dbHandler($this->pdo,$this->extension);
+        if($this->allowBlob)
+            $pdo->blob($this->reFormat);
+        return $pdo->update(...$params);
+    }
+
+    function delete(...$params)
+    {
+        $pdo = new \dbHandler($this->pdo,$this->extension);
+        return $pdo->delete(...$params);
     }
     
     // CLI Command
