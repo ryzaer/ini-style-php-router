@@ -603,13 +603,9 @@ class Router
     }
 
     // DB Connection Mysql
-    protected $pdo;
     protected $extension;
-    protected $allowBlob=false;
-    protected $reFormat=null;
     function dbConnect(...$prms)
     {
-        
         $data = isset($this->data['database'][$prms[0]]) ? $this->data['database'][$prms[0]] : [] ; 
         if(!$data)
             $data = isset($this->data['database']) ? $this->data['database'] : [] ; 
@@ -636,55 +632,12 @@ class Router
         $type = $data['type']?$data['type']:'mysql';  
 
         try {
-            $this->pdo = new PDO(sprintf('%s:host=%s;port=%s%s',$type,$host,$port,$name?";dbname=$name":''),$user,$pass);
-            $this->pdo->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
-            return $this;
-        } catch (PDOException $e) {
+            $pdo = new \PDO(sprintf('%s:host=%s;port=%s%s',$type,$host,$port,$name?";dbname=$name":''),$user,$pass);
+            $pdo->setAttribute(\PDO::ATTR_ERRMODE,\PDO::ERRMODE_EXCEPTION);
+            return new \dbHandler($pdo,$this->extension);
+        } catch (\PDOException $e) {
             var_export("Connection Error: " . $e->getMessage());
         }
-    }
-    function prepare(...$query)
-    {
-        return $this->pdo->prepare(...$query);
-    }
-    function query(...$query)
-    {
-        return $this->pdo->query(...$query);
-    }
-    
-    function quote(...$query)
-    {
-        return $this->pdo->quote(...$query);
-    }
-
-    function blob($reFormat=null)
-    {
-        if($reFormat)
-            $this->reFormat=$reFormat;
-        $this->allowBlob=true;
-        return $this;
-    }
-
-    function insert(...$params)
-    {
-        $pdo = new \dbHandler($this->pdo,$this->extension);
-        if($this->allowBlob)
-            $pdo->blob($this->reFormat);
-        return $pdo->insert(...$params);
-    }
-    
-    function update(...$params)
-    {
-        $pdo = new \dbHandler($this->pdo,$this->extension);
-        if($this->allowBlob)
-            $pdo->blob($this->reFormat);
-        return $pdo->update(...$params);
-    }
-
-    function delete(...$params)
-    {
-        $pdo = new \dbHandler($this->pdo,$this->extension);
-        return $pdo->delete(...$params);
     }
     
     // CLI Command

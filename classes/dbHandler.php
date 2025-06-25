@@ -11,7 +11,28 @@ class dbHandler
             $this->extension = $extension;
 
         $this->format = $this->extension;
+        return $this;
     }
+
+    function prepare(...$query)
+    {
+        return $this->handler->prepare(...$query);
+    }
+    function query(...$query)
+    {
+        return $this->handler->query(...$query);
+    }
+    
+    function quote(...$query)
+    {
+        return $this->handler->quote(...$query);
+    }
+
+    function exec(...$query)
+    {
+        return $this->handler->exec(...$query);
+    }
+
     function blob($extension=null) {
         if($extension)
             $this->format = $extension;
@@ -142,11 +163,20 @@ class dbHandler
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    private function readFile(string $path): ?string {
-        if (is_readable($path)) {
-            return file_get_contents($path);
+    function create(string $table, array $columns, string $engine = 'InnoDB', string $charset = 'utf8mb4'): bool
+    {
+        $fields = [];
+        foreach ($columns as $name => $definition) {
+            $fields[] = "`$name` $definition";
         }
-        return null;
+
+        $sql = "CREATE TABLE IF NOT EXISTS `$table` (" . implode(',', $fields) . ") ENGINE=$engine DEFAULT CHARSET=$charset;";
+
+        return $this->handler->exec($sql) !== false;
+    }
+
+    private function readFile(string $path): ?string {
+        return  is_readable($path) ? file_get_contents($path) : '';
     }
 
     private function isBlobFile(string $filename, string $formatList): bool {
