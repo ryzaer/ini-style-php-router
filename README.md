@@ -155,7 +155,7 @@ then run
 ```
 composer dump-autoload
 ```
-now change the `autoload.php`
+change the `autoload.php` to `vendor/autoload.php`
 ```
 <?php
 require_once 'vendor/autoload.php';
