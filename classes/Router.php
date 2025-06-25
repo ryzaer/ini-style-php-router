@@ -624,12 +624,12 @@ class Router
                 $data['type'] = $prms[5];
         }
 
-        $user = $data['user']?$data['user']:'';
-        $pass = $data['pass']?$data['pass']:'';
-        $name = $data['name']?$data['name']:'';
-        $host = $data['host']?$data['host']:'localhost';
-        $port = $data['port']?$data['port']:'3306';
-        $type = $data['type']?$data['type']:'mysql';  
+        $user = isset($data['user'])?$data['user']:'';
+        $pass = isset($data['pass'])?$data['pass']:'';
+        $name = isset($data['name'])?$data['name']:'';
+        $host = isset($data['host'])?$data['host']:'localhost';
+        $port = isset($data['port'])?$data['port']:'3306';
+        $type = isset($data['type'])?$data['type']:'mysql';  
 
         try {
             $pdo = new \PDO(sprintf('%s:host=%s;port=%s%s',$type,$host,$port,$name?";dbname=$name":''),$user,$pass);

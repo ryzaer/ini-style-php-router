@@ -104,15 +104,28 @@ class dbHandler
         return $stmt->execute();
     }
 
-    function select(
-        string $table,
-        array $where = [],
-        ?string $order = null,
-        ?int $limit = null,
-        string $columns = '*',
-        bool $useLike = false,
-        array $orWhere = []
-    ): array {
+    function select(string $table,array $where = [],bool $useLike = false,array $orWhere = []): array {
+
+        $columns = '*';
+        preg_match('/\((.*?)\)/', $table, $matches);
+        if($matches){
+            $table = trim(str_replace($matches[0],'',$table));
+            $rows = trim($matches[1]);
+            $columns = $rows ? $rows : $columns ;
+        }
+        $order = null;
+        preg_match('/\[(.*?)\]/', $table, $matches);
+        if($matches){
+            $table = trim(str_replace($matches[0],'',$table));
+            $order = trim($matches[1]);
+        }
+        $limit = null;
+        preg_match('/\{(.*?)\}/', $table, $matches);
+        if($matches){
+            $table = trim(str_replace($matches[0],'',$table));
+            $limit = trim($matches[1]);
+        }
+
         $sql = "SELECT $columns FROM `$table`";
         $params = [];
         $conditions = [];
@@ -145,18 +158,15 @@ class dbHandler
             }
         }
 
-        if (!empty($conditions)) {
+        if (!empty($conditions)) 
             $sql .= ' WHERE ' . implode(' AND ', $conditions);
-        }
-
-        if ($order) {
+        
+        if($order)
             $sql .= " ORDER BY $order";
-        }
-
-        if ($limit !== null) {
-            $sql .= " LIMIT $limit";
-        }
-
+        
+        if($limit)
+            $sql .=" LIMIT $limit" ;
+        
         $stmt = $this->handler->prepare($sql);
         $stmt->execute($params);
 
