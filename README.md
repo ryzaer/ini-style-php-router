@@ -101,7 +101,7 @@ Each route must map to a controller file `controllers/NameController.php` which 
 ```php
 public function method($self,$params) {
     // $self is the Router instance
-    // $params is an object url pattern from route {params}
+    // $params is an object http_code & url pattern from route {params}
 }
 ```
 ---

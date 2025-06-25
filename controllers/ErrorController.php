@@ -2,8 +2,8 @@
 
 class ErrorController
 {
-    public function handle($self,$param,$http_code)
+    public function handle($self,$param)
     {
-        print "ERROR ! $http_code";
+        print "ERROR ! {$param->http_code}: the page is not associate to this app";
     }
 }

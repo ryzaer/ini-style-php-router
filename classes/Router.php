@@ -159,10 +159,12 @@ class Router
         return $matches[1] ?? [];
     }
 
-    private function includeHandler($route, $params)
+    private function includeHandler($route, $params, $http_code=200)
     {
         if (!strpos($route, '@')) return false;
-        
+
+        $params= array_merge(["http_code" => $http_code],$params);
+
         [$controller, $action] = explode('@', $route, 2);
         $controllerFile = "{$this->controllersPath}/{$controller}.php";
         
@@ -204,7 +206,7 @@ class Router
             if (!isset($self->routes[$method])) {
                 http_response_code(405);
                 if ($errorHandler) {
-                    $self->includeHandler($errorHandler, $params);
+                    $self->includeHandler($errorHandler, $params, 405);
                 } else {
                     echo "405 Method Not Allowed";
                 }
@@ -233,7 +235,7 @@ class Router
                             if (!empty($missing)) {
                                 http_response_code(403);
                                 if ($errorHandler) {
-                                    $self->includeHandler($errorHandler, $params);
+                                    $self->includeHandler($errorHandler, $params, 403);
                                 } else {
                                     echo "403 Forbidden (missing auth data)";
                                 }
@@ -246,7 +248,7 @@ class Router
                     
                     http_response_code(500);
                     if ($errorHandler) {
-                        $self->includeHandler($errorHandler, $params);
+                        $self->includeHandler($errorHandler, $params, 500);
                     } else {
                         echo "500 Controller not found.";
                     }
@@ -254,10 +256,9 @@ class Router
                 }
             }
 
-
             http_response_code(404);
             if ($errorHandler) {
-                $self->includeHandler($errorHandler, $params);
+                $self->includeHandler($errorHandler, $params, 404);
             } else {
                 echo "404 Not Found";
             }
