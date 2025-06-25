@@ -3,7 +3,9 @@
 # iniStyle PHP Router Class Documentation
 This document describes the usage, structure, and configuration of the `Router` class used for routing in a PHP application with `.ini`-based configuration.
 
-This class includes an integrated templating engine that supports Blade-like syntax, including @extends, @section, filters, includes, components, and caching.
+This class includes and integrated templating engine that supports Blade-like syntax, including @extends, @section, filters, includes, components, and caching.
+
+Also a class extending PDO that provides ready-to-use CRUD functions like `insert`, `update`, `delete`, `select` and `create` table with automatic LONGBLOB file support.
 
 ## 📂 Class Overview
 The `Router` class provides a flexible way to define HTTP routes using a configuration `.ini` file and dispatches requests to corresponding controller actions.
@@ -12,6 +14,8 @@ The `Router` class provides a flexible way to define HTTP routes using a configu
 ```
 /your-app
   ├── classes/
+  │   └── __fn.php
+  │   └── dbHandler.php
   │   └── Router.php
   ├── autoload.php
   └── config.ini
@@ -101,32 +105,6 @@ public function method($self,$params,$http_code) {
     // $http_code is an numeric http code
 }
 ```
----
-## 📦 Templating Features
-
-- `{{@variable}}` – Basic variable replacement (supports nested keys)
-- `{{@var|lower|ucwords}}` – Filter chaining (with optional parameters)
-- `{{'template/header.html'}}` – Static includes
-- `{{'template/' ~ name ~ '.html'}}` – Dynamic includes
-- `{{if ...}} ... {{endif}}` – Conditionals
-- `{{foreach item in list}} ... {{endforeach}}` – Looping
-- `{{@component:'file.html' with key="value"}}` – Component rendering
-- `@extends`, `@section`, `@endsection`, `@section:name` – Layout inheritance
-- Caching system with auto-expiry on template modification
-
----
-
-## 💾 Caching System
-Can be set in the `config.ini` file, if not set will be false as default
-```ini
-[global]
-cache_enable = true
-```
-
-- Cache path: `caches/tpl_{hash}.html`
-- Metadata path: `caches/tpl_{hash}.html.meta`
-- Automatically bypasses cache if any involved file (layout, partial, component) is modified.
-
 ---
 
 ## 🛠 Getting start with CLI Extension
