@@ -232,6 +232,6 @@ so your folder structure now will be
   └── index.php
 ```
 ## 📋 Templating
-See database documentation [here](./Templating.md)
+See templating documentation [here](./Templating.md)
 ## 🗄️ Database
 See database documentation [here](./Database.md)
