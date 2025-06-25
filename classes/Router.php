@@ -159,12 +159,8 @@ class Router
         return $matches[1] ?? [];
     }
 
-    private function includeHandler($route, $params, $http_code = 0)
+    private function includeHandler($route, $params)
     {
-        if ($http_code && is_numeric($http_code)) {
-            http_response_code($http_code);
-        }
-        
         if (!strpos($route, '@')) return false;
         
         [$controller, $action] = explode('@', $route, 2);
@@ -175,7 +171,7 @@ class Router
             if (class_exists($controller)) {
                 $obj = new $controller();
                 if (method_exists($obj, $action)) {
-                    $obj->$action($this,(object)$params,$http_code);
+                    $obj->$action($this,(object)$params);
                     return true;
                 }
             }
@@ -206,15 +202,14 @@ class Router
                 $self->enableCache = true;
             
             if (!isset($self->routes[$method])) {
+                http_response_code(405);
                 if ($errorHandler) {
-                    $self->includeHandler($errorHandler, $params, 405);
+                    $self->includeHandler($errorHandler, $params);
                 } else {
-                    http_response_code(405);
                     echo "405 Method Not Allowed";
                 }
                 return;
-            }
-            
+            }            
 
             foreach ($self->routes[$method] as $route) {
                 if (preg_match($route['regex'], $path, $matches)) {
@@ -236,10 +231,10 @@ class Router
                             });
                             
                             if (!empty($missing)) {
+                                http_response_code(403);
                                 if ($errorHandler) {
-                                    $self->includeHandler($errorHandler, $params, 403);
+                                    $self->includeHandler($errorHandler, $params);
                                 } else {
-                                    http_response_code(403);
                                     echo "403 Forbidden (missing auth data)";
                                 }
                                 return;
@@ -249,10 +244,10 @@ class Router
 
                     if ($self->includeHandler($route['handler'], $params)) return;
                     
+                    http_response_code(500);
                     if ($errorHandler) {
-                        $self->includeHandler($errorHandler, $params, 500);
+                        $self->includeHandler($errorHandler, $params);
                     } else {
-                        http_response_code(500);
                         echo "500 Controller not found.";
                     }
                     return;
@@ -260,10 +255,10 @@ class Router
             }
 
 
+            http_response_code(404);
             if ($errorHandler) {
-                $self->includeHandler($errorHandler, $params, 404);
+                $self->includeHandler($errorHandler, $params);
             } else {
-                http_response_code(404);
                 echo "404 Not Found";
             }
         }
@@ -766,7 +761,7 @@ JS;
                     $uniqueMethods = array_unique($methods);
 
                     foreach ($uniqueMethods as $method) {
-                        $classDef .= "    function $method(\$self,\$params,\$http_code)\n    {\n        // TODO: implement $method\n    }\n\n";
+                        $classDef .= "    function $method(\$self,\$params)\n    {\n        // TODO: implement $method\n    }\n\n";
                     }
 
                     $classDef .= "}\n";
@@ -780,7 +775,7 @@ JS;
                         $updated = false;
                         foreach ($uniqueMethods as $method) {
                             if (!preg_match('/function\\s+' . preg_quote($method, '/') . '\\s*\\(/', $content)) {
-                                $append = "\n    function $method(\$self,\$params,\$http_code)\n    {\n        // TODO: implement $method\n    }\n";
+                                $append = "\n    function $method(\$self,\$params)\n    {\n        // TODO: implement $method\n    }\n";
                                 $content = preg_replace('/\\}\\s*$/', $append . "\n}", $content);
                                 $updated = true;
                             }

@@ -97,12 +97,11 @@ It passes parameters and error code (`403`, `404`, `405`, `500`) to the handler.
 
 ## 📤 Controller Interface
 
-Each route must map to a controller file `controllers/NameController.php`, and the method should look like:
+Each route must map to a controller file `controllers/NameController.php` which is implemented from the router section `NameController@method`, and the method should look like:
 ```php
-public function method($self,$params,$http_code) {
+public function method($self,$params) {
     // $self is the Router instance
     // $params is an object url pattern from route {params}
-    // $http_code is an numeric http code
 }
 ```
 ---
