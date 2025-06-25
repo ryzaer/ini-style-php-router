@@ -47,9 +47,9 @@ class dbHandler
         $stmt = $this->handler->prepare($sql);
 
         foreach ($data as $key => $value) {
-            $isBlob = $this->allowBlob && $this->isBlobFile($value, $this->format);
+            $isBlob = $this->allowBlob && $this->isAllowFile($value, $this->format);
             $val = $isBlob ? $this->readFile($value) : $value;
-            $type = $isBlob ? PDO::PARAM_LOB : (is_numeric($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
+            $type = $isBlob ? PDO::PARAM_LOB : ( is_numeric($val) ? PDO::PARAM_INT : PDO::PARAM_STR );
             $stmt->bindValue(":$key", $val, $type);
         }
         $this->format = $this->extension;
@@ -72,7 +72,7 @@ class dbHandler
         $stmt = $this->handler->prepare($sql);
 
         foreach ($data as $key => $value) {
-            $isBlob = $this->allowBlob && $this->isBlobFile($value, $this->format);
+            $isBlob = $this->allowBlob && $this->isAllowFile($value, $this->format);
             $val = $isBlob ? $this->readFile($value) : $value;
             $type = $isBlob ? PDO::PARAM_LOB : (is_numeric($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
             $stmt->bindValue(":$key", $val, $type);
@@ -189,7 +189,7 @@ class dbHandler
         return  is_readable($path) ? file_get_contents($path) : '';
     }
 
-    private function isBlobFile(string $filename, string $formatList): bool {
+    private function isAllowFile(string $filename, string $formatList): bool {
         $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
         $allowed = explode('|', $formatList);
         return in_array($ext, $allowed);
