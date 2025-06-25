@@ -104,7 +104,7 @@ php index.php clear:cache
 ---
 
 ## ✅ Example Usage
-Put it inside page handler
+Put it inside page controller
 ```php
 $self->set('title', 'Dashboard');
 $self->set('user', [
