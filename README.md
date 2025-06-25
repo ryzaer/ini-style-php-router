@@ -232,4 +232,4 @@ so your folder structure now will be
   └── index.php
 ```
 ## 🗄️ Database
-You can follow next document [here](./Database.md)
+See database documentation [here](./Database.md)
