@@ -91,11 +91,10 @@ Replaces placeholders `@section:name` in layout with section values or fallback.
 - Automatically bypasses cache if any involved file (layout, partial, component) is modified.
 
 ### CLI Clear Cache:
-Use `clear-cache.php` to remove all cache files:
+Use `clear:cache` to remove all cache files:
 ```bash
-php clear-cache.php
+php index.php clear:cache
 ```
-
 ---
 
 ## 📂 Recommended Structure
@@ -118,12 +117,12 @@ echo $self->render();
 ---
 
 ## 🧩 Supported Filters
-| Filter     | Example                            | Description                  |
+| Filter     | Example                             | Description                  |
 |------------|-------------------------------------|------------------------------|
-| `lower`    | `{{@user.name|lower}}`             | Lowercase                   |
-| `upper`    | `{{@title|upper}}`                 | Uppercase                   |
-| `ucwords`  | `{{@user.name|lower|ucwords}}`     | Capitalize Words            |
-| `date`     | `{{@user.created_at|date:"d M Y"}}` | Format date string          |
+| `lower`    | `{{@user.name\|lower}}`             | Lowercase                    |
+| `upper`    | `{{@title\|upper}}`                 | Uppercase                    |
+| `ucwords`  | `{{@user.name\|lower\|ucwords}}`    | Capitalize Words             |
+| `date`     | `{{@user.created_at\|date:"d M Y"}}`| Format date string           |
 
 ---
 
