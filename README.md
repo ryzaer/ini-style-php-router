@@ -231,5 +231,7 @@ so your folder structure now will be
   ├── config.ini
   └── index.php
 ```
+## 📋 Templating
+See database documentation [here](./Templating.md)
 ## 🗄️ Database
 See database documentation [here](./Database.md)
