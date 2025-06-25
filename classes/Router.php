@@ -7,9 +7,6 @@ class Router
     function __construct($configPath=null)
     {
         $this->basename = basename('.');
-        $this->cachesPath = "{$this->basename}/{$this->cachesPath}";
-        $this->controllersPath = "{$this->basename}/{$this->controllersPath}";
-        $this->templatesPath = "{$this->basename}/{$this->templatesPath}";
         if($configPath){
             $configFile = "{$this->basename}/$configPath";
             if(!file_exists($configFile)){
@@ -21,6 +18,17 @@ class Router
                 $this->loadRoutes($this->config['router'] ?? []);
             }
         }
+
+        if(isset($this->config['global']['cache_path']))
+            $this->cachesPath = $this->config['global']['cache_path'];
+        if(isset($this->config['global']['controller_path']))
+            $this->controllersPath = $this->config['global']['controller_path'];
+        if(isset($this->config['global']['template_path']))
+            $this->templatesPath = $this->config['global']['template_path'];
+        
+        $this->cachesPath = "{$this->basename}/{$this->cachesPath}";
+        $this->controllersPath = "{$this->basename}/{$this->controllersPath}";
+        $this->templatesPath = "{$this->basename}/{$this->templatesPath}";
     }
 
     function getConfig()
@@ -191,7 +199,7 @@ class Router
 
             $errorHandler = $self->get('global.error_handler');
             // conditional templating cache
-            if($self->get('global.enable_cache') === 'true' )
+            if($self->get('global.cache_enable') === 'true' )
                 $self->enableCache = true;
             
             if (!isset($self->routes[$method])) {
@@ -771,7 +779,7 @@ JS;
 
                     if (!file_exists($file)) {
                         file_put_contents($file, $classDef);
-                        echo "✔ Handler created : controllers/$controller.php\n";
+                        echo "✔ Handler created : {$self->controllersPath}/$controller.php\n";
                     } else {
                         // Append method if not exists
                         $content = file_get_contents($file);
@@ -785,9 +793,9 @@ JS;
                         }
                         if ($updated) {
                             file_put_contents($file, $content);
-                            echo "✔ Updated handler : controllers/$controller.php\n";
+                            echo "✔ Updated handler : {$self->controllersPath}/$controller.php\n";
                         } else {
-                            echo "• Skipped (already exists) : controllers/$controller.php\n";
+                            echo "• Skipped (already exists) : {$self->controllersPath}/$controller.php\n";
                         }
                     }
                 }
