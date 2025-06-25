@@ -100,15 +100,6 @@ php clear-cache.php
 
 ## 📂 Recommended Structure
 ```
-project/
-├── Layout.php
-├── index.php
-├── layout.html
-├── page.html
-├── components/
-│   └── alert.html
-├── cache/
-└── clear-cache.php
 ```
 
 ---
