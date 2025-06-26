@@ -120,7 +120,8 @@ error_handler = ErrorController@handle
 It passes parameters and error code (`403`, `404`, `405`, `500`) to the handler.
 
 ### 📄 Other default values
-```
+```ini
+[global]
 cache_path = caches           ← Default caches folder
 controller_path = controllers ← Default controllers folder
 template_path = templates     ← Default templates folder
