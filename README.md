@@ -21,8 +21,7 @@ The `Router` class provides a flexible way to define HTTP routes using a configu
   └── config.ini
 ```
 ---
-
-### 📌 Public Methods
+## 🧩 Public Methods
 
 #### `fn->custom(...$params)`
 Assign a single customization function, it will be created in `classes/__functions/custom.php`.
@@ -52,9 +51,9 @@ Bulk assign to run the Router
 Simple JSON output 
 
 ---
-## 🔧 Configuration File Structure (`config.ini`)
+## 🔧 Configuration (`config.ini`)
 
-### Full example:
+### ⚙️ File Structure:
 ```ini
 [global]
 error_handler = ErrorController@handle
@@ -79,8 +78,8 @@ icon_192 = icons/icon-192x192.png
 icon_512 = icons/icon-512x512.png
 display = standalone
 ```
----
-## 📌 Route Syntax
+
+### 📌 Route Syntax
 
 Each route entry in `[router]` must follow this format:
 ```ini
@@ -96,13 +95,11 @@ METHOD /path/{param} [optional=params] = Controller@method
   - `auth=true`: Requires session variables defined in `global.auth_data`
   - `cors=true`: Sends `Access-Control-Allow-Origin: *` or custom domain `cors=www.domain.com`
 
-full example
+#### full example:
 ```ini
 GET|POST|PUT /user/{id}/token/{hash} [cors=www.domain.com,auth=true] = userController@show
 ```
-
----
-## 🔐 Authentication
+### 🔐 Authentication
 
 If `auth=true` is set on a `config.ini`, the router checks for required session keys defined in `global` section:
 ```ini
@@ -113,9 +110,7 @@ If any key is missing, the router will:
 - Call `error_handler` if available
 - Or return `403 Forbidden`
 
----
-
-## ⚠️ Error Handling
+### ⚠️ Error Handling
 
 This is an example of using error handler:
 ```ini
