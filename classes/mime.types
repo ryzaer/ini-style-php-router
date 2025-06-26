@@ -11,7 +11,7 @@
 # Internet media types should be registered as described in RFC 4288.
 # The registry is at <http://www.iana.org/assignments/media-types/>.
 #
-# MIME type (lowercased)			Extensions
+# MIME type (lowercased)			            Extensions
 # ============================================	==========
 # application/1d-interleaved-parityfec
 # application/3gpdash-qoe-report+xml
@@ -100,11 +100,11 @@ application/ecmascript				ecma
 # application/emergencycalldata.providerinfo+xml
 # application/emergencycalldata.serviceinfo+xml
 # application/emergencycalldata.subscriberinfo+xml
-application/emma+xml				emma
+application/emma+xml			emma
 # application/emotionml+xml
 # application/encaprtp
 # application/epp+xml
-application/epub+zip				epub
+application/epub+zip			epub
 # application/eshop
 # application/example
 application/exi					exi
@@ -112,7 +112,7 @@ application/exi					exi
 # application/fastsoap
 # application/fdt+xml
 # application/fits
-application/font-tdpfr				pfr
+application/font-tdpfr			pfr
 # application/framework-attributes+xml
 # application/geo+json
 application/gml+xml				gml
@@ -166,7 +166,7 @@ application/mac-binhex40			hqx
 application/mac-compactpro			cpt
 # application/macwriteii
 application/mads+xml				mads
-application/marc				mrc
+application/marc			        mrc
 application/marcxml+xml				mrcx
 application/mathematica				ma nb mb
 application/mathml+xml				mathml
@@ -217,12 +217,12 @@ application/mxf					mxf
 # application/nss
 # application/ocsp-request
 # application/ocsp-response
-application/octet-stream	bin dms lrf mar so dist distz pkg bpk dump elc deploy
+application/octet-stream	    bin dms lrf mar so dist distz pkg bpk dump elc deploy
 application/oda					oda
 # application/odx
-application/oebps-package+xml			opf
+application/oebps-package+xml	opf
 application/ogg					ogx
-application/omdoc+xml				omdoc
+application/omdoc+xml			omdoc
 application/onenote				onetoc onetoc2 onetmp onepkg
 application/oxps				oxps
 # application/p2p-overlay+xml
