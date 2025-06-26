@@ -190,7 +190,11 @@ class dbHandler
     }
 
     private function isAllowFile(string $filename, string $formatList):string {
-        $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        // Buka fileinfo
+        $finfo = finfo_open(FILEINFO_MIME_TYPE); 
+        $mimeType = finfo_file($finfo, $filename);
+        finfo_close($finfo);
+        $ext = $this->getExtension($mimeType);
         $allowed = explode('|', $formatList);
         if(in_array($ext,$allowed)){
            return file_get_contents($filename);
@@ -198,4 +202,58 @@ class dbHandler
            return '';
         }
     }  
+
+    // mime parse map
+    private static function parseMimeFile($mimeFile)
+    {
+        $lines = file($mimeFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        $mimeMap = [];
+        foreach ($lines as $line) {
+            // Abaikan baris komentar
+            if (strpos($line, '#') === 0) {
+                continue;
+            }
+
+            // Pisahkan tipe dan ekstensi
+            $parts = preg_split('/\s+/', trim($line));
+
+            if (count($parts) > 1) {
+                $mimeType = array_shift($parts); // Ambil tipe mime
+                foreach ($parts as $ext) {
+                    // Tambahkan ke peta ekstensi
+                    $mimeMap[$mimeType][] = $ext;
+                }
+            }
+        }
+        return $mimeMap;
+    }
+    static function getExtension($mimeType)
+    {
+        
+        $mimeFile = __DIR__.'/mime.types';
+        $mimeMap = [];
+
+        if (!file_exists($mimeFile)) {
+            throw new Exception("mime.types file is missing!: {$mimeFile}");
+        }
+
+        $mimeMap = self::parseMimeFile($mimeFile);
+
+        if(is_bool($mimeType)){
+            if($mimeType){
+                // Ambil ekstensi jika true
+                return $mimeMap[$mimeType] ?? [];
+            }else{
+                // Ambil mimetype dan ekstensi jika false
+                return $mimeMap;
+            }   
+        }else{
+            if (isset($mimeMap[$mimeType])) {
+                // Ambil ekstensi pertama yang ditemukan
+                return $mimeMap[$mimeType][0];
+            }
+        }
+        
+        return 'unknown';
+    }
 }

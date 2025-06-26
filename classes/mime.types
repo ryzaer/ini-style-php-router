@@ -10,7 +10,7 @@
 #
 # Internet media types should be registered as described in RFC 4288.
 # The registry is at <http://www.iana.org/assignments/media-types/>.
-#
+# 
 # MIME type (lowercased)			            Extensions
 # ============================================	==========
 # application/1d-interleaved-parityfec
