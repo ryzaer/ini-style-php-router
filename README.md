@@ -47,8 +47,8 @@ Returns the fully rendered HTML string. Auto-handles layout inheritance, compone
 #### `dispatch(string $configFile, array $cliParams):void`
 Bulk assign to run the Router
 
-#### `api_response(int $httpCode, array $resultData, array $additionalData, bool $beautifyJSON):string`
-Simple JSON output 
+#### `api_response(int $httpCode, array $resultData, array $optionalData, bool $beautifyJSON):string`
+Simple JSON output
 
 ---
 ## 🔧 Configuration (`config.ini`)
