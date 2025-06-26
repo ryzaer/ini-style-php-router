@@ -1,62 +1,16 @@
 
 ## 📦 Templating Features
 
-- `{{@variable}}` – Basic variable replacement (supports nested keys)
-- `{{@var|lower|ucwords}}` – Filter chaining (with optional parameters)
+- `{{@var}}` – Basic variable replacement (supports nested keys)
 - `{{'template/header.html'}}` – Static includes
-- `{{'template/' ~ name ~ '.html'}}` – Dynamic includes
-- `{{if ...}} ... {{endif}}` – Conditionals
+- `{{'template/' ~ var ~ '.html'}}` – Dynamic includes
+- `{{if ... }} ... {{elseif ...}} ...  {{else}} ... {{endif}}` – Conditionals with operator support `===, !==, ==, !=, >, <, >=, <=`
 - `{{foreach item in list}} ... {{endforeach}}` – Looping
 - `{{@component:'file.html' with key="value"}}` – Component rendering
 - `@extends`, `@section`, `@endsection`, `@section:name` – Layout inheritance
+- `{{@var|lower|ucwords}} | {{upper var}}` – Filter chaining (with optional parameters)
+- `{{@var|date:"d M Y"}} | {{date var "d M Y"}}` – Filter date (with optional parameters)
 - Caching system with auto-expiry on template modification
-
----
-
-### ⚙️ Internal Methods
-
-#### `parse(string $content): string`
-Core parsing method that calls all sub-parsers in order:
-- remove comments
-- parse components
-- includes
-- conditionals
-- loops
-- filters
-- variables
-
-#### `parseVariables(string $content)`
-Replace all `{{@key}}` references with data values, with filter support.
-
-#### `applyFilters(string $value, array $filters)`
-Handles chaining of filters like `lower`, `upper`, `date`, `ucwords`, etc.
-
-#### `parseHelpers()`
-Legacy support; now merged into `parseVariables()` via chaining.
-
-#### `parseIncludes(string $content)`
-Handles `{{'file.html'}}` or dynamic paths using `~` concatenation.
-
-#### `parseConditionals()`
-Handles `{{if condition}} ... {{endif}}`
-
-#### `parseLoops()`
-Handles `{{foreach item in list}} ... {{endforeach}}`
-
-#### `parseComponents()`
-Handles components with context injection:
-```php
-{{@component:'path/to/component.html' with key="value"}}
-```
-
-#### `parseExtends()`
-Detects `@extends:layout.html` in child views and stores parent file.
-
-#### `parseSections()`
-Parses `@section:name` and `@endsection` blocks from child views.
-
-#### `injectYields(string $content)`
-Replaces placeholders `@section:name` in layout with section values or fallback.
 
 ---
 
@@ -73,12 +27,6 @@ php index.php clear:cache
 ```
 ---
 
-## 📂 Recommended Structure
-```
-```
-
----
-
 ## ✅ Example Usage
 Put it inside page controller
 ```php
@@ -87,7 +35,7 @@ $self->set('user', [
     'name' => 'John Doe',
     'created_at' => '2024-12-31 12:00:00'
 ]);
-echo $self->render();
+echo $self->render('templates/path.html');
 ```
 
 ---

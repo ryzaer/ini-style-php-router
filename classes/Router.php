@@ -461,28 +461,121 @@ class Router
 
     protected function parseConditionals(string $content): string
     {
-        return preg_replace_callback('/\{\{if\s+([\w\.]+)\}\}(.*?)\{\{endif\}\}/s', function ($matches) {
-            return $this->getDataValue($matches[1]) ? $this->parse($matches[2]) : '';
+        return preg_replace_callback('/\{\{if (.+?)\}\}(.*?)\{\{endif\}\}/s', function ($matches) {
+            $block = $matches[0];  // Semua isi dari {{if}} sampai {{endif}}
+            $condition = trim($matches[1]);
+            $body = $matches[2];
+
+            // Pisahkan elseif dan else
+            $parts = preg_split('/\{\{(elseif .+?|else)\}\}/', $body, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+
+            $conditions = [];
+            $currentCondition = $condition;
+
+            // Parsing semua blok if, elseif, else
+            for ($i = 0; $i < count($parts); $i += 2) {
+                $contentBlock = $parts[$i];
+                $next = $parts[$i + 1] ?? null;
+
+                if (strpos($next, 'elseif') === 0) {
+                    $conditions[] = ['condition' => $currentCondition, 'content' => $contentBlock];
+                    $currentCondition = trim(substr($next, 7)); // Ambil kondisi elseif berikutnya
+                } elseif ($next === 'else') {
+                    $conditions[] = ['condition' => $currentCondition, 'content' => $contentBlock];
+                    $conditions[] = ['condition' => 'else', 'content' => $parts[$i + 2] ?? ''];
+                    break;
+                } else {
+                    $conditions[] = ['condition' => $currentCondition, 'content' => $contentBlock];
+                    break;
+                }
+            }
+
+            // Evaluasi kondisi satu per satu
+            foreach ($conditions as $cond) {
+                if ($cond['condition'] === 'else' || $this->evaluateCondition($cond['condition'])) {
+                    return $this->parse($cond['content']);
+                }
+            }
+
+            return '';
         }, $content);
     }
 
+    protected function evaluateCondition(string $condition): bool
+    {
+        // Regex untuk ambil variabel, operator, dan value
+        if (preg_match('/^([\w\.]+)\s*(===|!==|==|!=|>=|<=|>|<)\s*(.+)$/', $condition, $matches)) {
+            $leftKey = trim($matches[1]);
+            $operator = trim($matches[2]);
+            $rightValue = trim($matches[3]);
+
+            $leftValue = $this->getDataValue($leftKey);
+            $rightValue = $this->convertValue($rightValue);
+
+            switch ($operator) {
+                case '===': return $leftValue === $rightValue;
+                case '!==': return $leftValue !== $rightValue;
+                case '==': return $leftValue == $rightValue;
+                case '!=': return $leftValue != $rightValue;
+                case '>=': return $leftValue >= $rightValue;
+                case '<=': return $leftValue <= $rightValue;
+                case '>': return $leftValue > $rightValue;
+                case '<': return $leftValue < $rightValue;
+            }
+        }
+
+        // Fallback: jika hanya variabel, cek apakah truthy
+        $value = $this->getDataValue($condition);
+        return !empty($value);
+    }
+
+    protected function convertValue(string $value)
+    {
+        // Tangani array kosong
+        if ($value === '[]') return [];
+
+        // Tangani boolean
+        if ($value === 'true') return true;
+        if ($value === 'false') return false;
+
+        // Tangani string dengan kutip
+        if (preg_match('/^[\'"](.*)[\'"]$/', $value, $match)) {
+            return $match[1];
+        }
+
+        // Tangani angka
+        if (is_numeric($value)) {
+            return $value + 0; // Convert to int or float
+        }
+
+        return $value;
+    }
+    
     protected function parseLoops(string $content): string
     {
-        return preg_replace_callback('/\{\{foreach\s+(\w+)\s+in\s+([\w\.]+)\}\}(.*?)\{\{endforeach\}\}/s', function ($matches) {
-            $itemVar = $matches[1];
-            $dataKey = $matches[2];
-            $block = $matches[3];
+        return preg_replace_callback('/\{\{foreach (.+?) in (.+?)\}\}(.*?)\{\{endforeach\}\}/s', function ($matches) {
+            $itemName = trim($matches[1]);
+            $listName = trim($matches[2]);
+            $body = $matches[3];
 
-            $list = $this->getDataValue($dataKey);
-            if (!is_array($list)) return '';
+            $list = $this->getDataValue($listName);
 
-            $result = [];
-            foreach ($list as $item) {
-                // $tempBlock = str_replace('{{@' . $itemVar . '}}', $item, $block);
-                $tempBlock = preg_replace("/\r+|\n+/s","",str_replace('{{@' . $itemVar . '}}', $item, $block));
-                $result[] = $this->parse($tempBlock);
+            if (!is_array($list)) {
+                return '';
             }
-            return implode("\n",$result);
+
+            $output = [];
+            $num = 1;
+            foreach ($list as $item) {
+                $this->set($itemName, $item);
+                // Hilangkan newline hanya di awal dan akhir blok item
+                $parsed = preg_replace('/^[\r\n]+\s{4}|[\r\n]+$/', '', $this->parse($body));
+                $output[] = $num === count($list) ? preg_replace('/[\r\n]/','',$parsed) : $parsed;
+                $num++;
+            }
+
+            // Gabungkan semua item tanpa extra break line
+            return implode('', $output); // << Perhatikan: Jangan pakai \n di sini
         }, $content);
     }
 
@@ -533,6 +626,7 @@ class Router
         $content = $this->parseLoops($content);
         $content = $this->parseHelpers($content);
         $content = $this->parseVariables($content);
+        
         return $content;
     }
 

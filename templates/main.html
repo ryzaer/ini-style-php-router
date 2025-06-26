@@ -1,8 +1,14 @@
 <main>
-     {{if user.name}}
+     {{if user.name === 'Riza Borneo'}}
         <b><i>Halo, {{@user.name}}</i></b>
     {{endif}}
-    <p>Role: {{@user.role}}</p>
+    {{if user.role === 'Admin'}}
+        <p>Halo Admin!</p>
+    {{elseif user.role === 'Editor'}}
+        <p>Halo Editor!</p>
+    {{else}}
+        <p>Halo Pengunjung!</p>
+    {{endif}}
     <h3>{{@judul_article}}</h3>
     <article>
         Lorem ipsum dolor sit amet, consectetur adipisicing elit. Culpa perferendis totam fuga eveniet alias. Modi, consectetur. Illum placeat voluptatem eius quas suscipit. Possimus eius dicta fugiat repellat! Recusandae, ducimus tempore?
