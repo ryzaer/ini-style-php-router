@@ -119,14 +119,6 @@ error_handler = ErrorController@handle
 ```
 It passes parameters and error code (`403`, `404`, `405`, `500`) to the handler.
 
-### 📄 Other default values
-```ini
-[global]
-cache_path = caches           ← Default caches folder
-controller_path = controllers ← Default controllers folder
-template_path = templates     ← Default templates folder
-```
-
 ### 💾 Caching System
 If not set in `config.ini` caching template will be off as default
 ```ini
@@ -136,6 +128,14 @@ cache_enable = true
 - Cache path: `caches/tpl_{hash}.html`
 - Metadata path: `caches/tpl_{hash}.html.meta`
 - Automatically bypasses cache if any involved file (layout, partial, component) is modified.
+
+### 📄 Other default values
+```ini
+[global]
+cache_path = caches           ← Default caches folder
+controller_path = controllers ← Default controllers folder
+template_path = templates     ← Default templates folder
+```
   
 ---
 
@@ -145,7 +145,7 @@ Each route must map to a controller file `controllers/NameController.php` which 
 ```php
 public function method($self,$params) {
     // $self is the Router instance
-    // $params is an object http_code & url pattern from route {params}
+    // $params is an object http_code & from url router {params}
 }
 ```
 ---
