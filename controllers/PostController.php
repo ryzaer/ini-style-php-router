@@ -17,10 +17,14 @@ class PostController
         // echo "Last Insert ID: $rsl";
         // $pdo->blob()->update('tbblob', ['filedata'=>'./doraemon.gif'],['id'=>'1']);
         // $pdo->delete('tbblob',['id'=>'2']);        
-        $rsl = $pdo->select('tbblob(name,item)[item asc]{5}',['name'=>'dora'],true);
+        // $rsl = $pdo->select('tbblob(id,name,filedata as file)[id DESC]{5}',['name'=>'dora'],true);
         // $img = 'data:image/gif;base64,'.base64_encode($rsl[0]['file']);
         // echo "<img src=\"$img\" width=\"100px\" />";
 
         // var_dump($self->getExtension('image/png'));
+
+        $table = "users[~name~](~order~){~limit~}<~group~>";
+        if(preg_match_all('/\[~(.*?)~\]|\(~(.*?)~\)|\{~(.*?)~\}|\<~(.*?)~\>/', $table, $matches, PREG_SET_ORDER))
+            var_dump($matches);
     }
 }

@@ -109,15 +109,15 @@ class dbHandler
         $columns = '*';        
         $order = null;        
         $limit = null;
-        if(preg_match_all('/\((.*?)\)|\[(.*?)\]|\{(.*?)\}/', $table, $matches, PREG_SET_ORDER)){
-            foreach ( $matches as $mtch) {
-                $table = trim(str_replace($mtch[0],'',$table));
-                if($mtch[1])
-                    $columns = trim($mtch[1]) ?: $columns;                
-                if(isset($mtch[2]) && $mtch[2])
-                    $order = trim($mtch[2]);
-                if(isset($mtch[3]) && $mtch[3])
-                    $limit = trim($mtch[3]);
+        $groupBy = '';
+
+        if (preg_match_all('/\[~(.*?)~\]|\(~(.*?)~\)|\{~(.*?)~\}|<~(.*?)~>/', $table, $matches, PREG_SET_ORDER)) {
+            foreach ($matches as $match) {
+                $table = trim(str_replace($match[0], '', $table));
+                if (!empty($match[1])) $columns = trim($match[1]) ?: $columns;
+                if (!empty($match[2])) $order = trim($match[2]);
+                if (!empty($match[3])) $limit = trim($match[3]);
+                if (!empty($match[4])) $groupBy = trim($match[4]);
             }
         }
 
@@ -153,14 +153,10 @@ class dbHandler
             }
         }
 
-        if (!empty($conditions)) 
-            $sql .= ' WHERE ' . implode(' AND ', $conditions);
-        
-        if($order)
-            $sql .= " ORDER BY $order";
-        
-        if($limit)
-            $sql .=" LIMIT $limit" ;
+        if (!empty($conditions)) $sql .= ' WHERE ' . implode(' AND ', $conditions);
+        if ($groupBy) $sql .= " GROUP BY $groupBy";
+        if($order) $sql .= " ORDER BY $order";
+        if($limit) $sql .=" LIMIT $limit" ;
         
         $stmt = $this->handler->prepare($sql);
         $stmt->execute($params);
