@@ -154,7 +154,6 @@ public function method($self,$params) {
 ## 🛠 Getting start with CLI Extension
 Create a file `index.php`, then run the `Router` class
 ```php
-<?php
 require_once 'autoload.php';
 Router::dispatch('config.ini',isset($argv)?$argv:[]);
 ```
@@ -179,7 +178,6 @@ composer dump-autoload
 ```
 change the `autoload.php` to `vendor/autoload.php`
 ```php
-<?php
 require_once 'vendor/autoload.php';
 ```
 Now you can build structure with `index.php` script to:
