@@ -158,7 +158,7 @@ Create a file `index.php`, then run the `Router` class
 require_once 'autoload.php';
 Router::dispatch('config.ini',isset($argv)?$argv:[]);
 ```
-We are using a simple `autoload.php` custom file,but you can use composer instead, create and configure `composer.json`
+We are using a simple `autoload.php` custom file, but you can use composer instead, create and configure `composer.json`
 ```
 {
     "autoload": {
@@ -246,7 +246,7 @@ so your folder structure now will be
   ├── config.ini
   └── index.php
 ```
-## 📋 Templating
-See templating documentation [here](./Templating.md)
-## 🗄️ Database
-See database documentation [here](./Database.md)
+up to here you can move on to the next documentation
+
+- Templating documentation [here](./Templating.md)
+- Database documentation [here](./Database.md)
