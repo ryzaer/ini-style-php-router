@@ -159,7 +159,7 @@ require_once 'autoload.php';
 Router::dispatch('config.ini',isset($argv)?$argv:[]);
 ```
 We are using a simple `autoload.php` custom file, but you can use composer instead, create and configure `composer.json`
-```
+```json
 {
     "autoload": {
         "psr-4": {
@@ -214,7 +214,7 @@ After `php index.php make:handlers config` is executed, your structure folders w
   └── index.php
 ```
 don't forget to create `.htaccess` file to protect your configuration `.ini` file or if nginx users can convert on [winginx](https://www.winginx.com/en/htaccess)
-```
+```htaccess
 <IfModule mod_rewrite.c>
     Options +FollowSymLinks -MultiViews
     RewriteEngine On
@@ -248,5 +248,5 @@ so your folder structure now will be
 ```
 up to here you can move on to the next documentation
 
-- Templating documentation [here](./Templating.md)
-- Database documentation [here](./Database.md)
+- Templating [here](./Templating.md)
+- Database [here](./Database.md)
