@@ -227,7 +227,7 @@ class dbHandler
         }
         return $mimeMap;
     }
-    static function getExtension($mimeType)
+    static function getExtension($mimeType):string
     {
         
         $mimeFile = __DIR__.'/mime.types';

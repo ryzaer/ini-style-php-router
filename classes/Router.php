@@ -3,6 +3,7 @@
 class Router
 {
     private $routes = [];
+    private $fn;
 
     function __construct($configPath=null)
     {
@@ -634,6 +635,11 @@ class Router
         } catch (\PDOException $e) {
             var_export("Connection Error: " . $e->getMessage());
         }
+    }
+
+    function getExtension($mimeType):string
+    {
+        return \dbHandler::getExtension($mimeType);
     }
     
     // CLI Command

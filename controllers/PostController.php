@@ -21,6 +21,6 @@ class PostController
         // $img = 'data:image/gif;base64,'.base64_encode($rsl[0]['file']);
         // echo "<img src=\"$img\" width=\"100px\" />";
 
-        // var_dump($pdo->getExtension('image/png'));
+        // var_dump($self->getExtension('image/png'));
     }
 }

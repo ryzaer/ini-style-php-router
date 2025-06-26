@@ -24,19 +24,6 @@ cache_enable = true
 
 ---
 
-### 📌 Public Methods
-
-#### `set(string $key, mixed $value)`
-Assign a single variable.
-
-#### `set(array $data)`
-Bulk assign associative array as variables.
-
-#### `render(): string`
-Returns the fully rendered HTML string. Auto-handles layout inheritance, components, includes, conditionals, etc.
-
----
-
 ### ⚙️ Internal Methods
 
 #### `parse(string $content): string`
