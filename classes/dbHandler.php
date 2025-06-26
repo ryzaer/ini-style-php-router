@@ -161,8 +161,6 @@ class dbHandler
         
         if($limit)
             $sql .=" LIMIT $limit" ;
-
-        var_dump($sql);
         
         $stmt = $this->handler->prepare($sql);
         $stmt->execute($params);
