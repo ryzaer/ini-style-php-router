@@ -47,10 +47,10 @@ class dbHandler
         $stmt = $this->handler->prepare($sql);
 
         foreach ($data as $key => $value) {
-            $isBlob = $this->allowBlob && $this->isAllowFile($value, $this->format);
-            $val = $isBlob ? $this->readFile($value) : $value;
-            $type = $isBlob ? PDO::PARAM_LOB : ( is_numeric($val) ? PDO::PARAM_INT : PDO::PARAM_STR );
-            $stmt->bindValue(":$key", $val, $type);
+            $isBlob = $this->allowBlob && $this->checkFile($value);
+            $vals = $isBlob ? $this->isAllowFile($value, $this->format) : $value;
+            $type = $isBlob ? PDO::PARAM_LOB : ( is_numeric($vals) ? PDO::PARAM_INT : PDO::PARAM_STR );
+            $stmt->bindValue(":$key", $vals, $type);
         }
         $this->format = $this->extension;
         $this->allowBlob = false;
@@ -72,10 +72,10 @@ class dbHandler
         $stmt = $this->handler->prepare($sql);
 
         foreach ($data as $key => $value) {
-            $isBlob = $this->allowBlob && $this->isAllowFile($value, $this->format);
-            $val = $isBlob ? $this->readFile($value) : $value;
-            $type = $isBlob ? PDO::PARAM_LOB : (is_numeric($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
-            $stmt->bindValue(":$key", $val, $type);
+            $isBlob = $this->allowBlob && $this->checkFile($value);
+            $vals = $isBlob ? $this->isAllowFile($value, $this->format) : $value;
+            $type = $isBlob ? PDO::PARAM_LOB : ( is_numeric($vals) ? PDO::PARAM_INT : PDO::PARAM_STR );
+            $stmt->bindValue(":$key", $vals, $type);
         }
 
         foreach ($where as $key => $value) {
@@ -185,13 +185,17 @@ class dbHandler
         return $this->handler->exec($sql) !== false;
     }
 
-    private function readFile(string $path): ?string {
-        return  is_readable($path) ? file_get_contents($path) : '';
+    private function checkFile(string $path):bool {
+        return  is_readable($path) ? true : false;
     }
 
-    private function isAllowFile(string $filename, string $formatList): bool {
+    private function isAllowFile(string $filename, string $formatList):string {
         $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
         $allowed = explode('|', $formatList);
-        return in_array($ext, $allowed);
+        if(in_array($ext,$allowed)){
+           return file_get_contents($filename);
+        }else{
+           return '';
+        }
     }  
 }
