@@ -127,6 +127,16 @@ controller_path = controllers ← Default controllers folder
 template_path = templates     ← Default templates folder
 ```
 
+### 💾 Caching System
+If not set in `config.ini` caching template will be off as default
+```ini
+[global]
+cache_enable = true
+```
+- Cache path: `caches/tpl_{hash}.html`
+- Metadata path: `caches/tpl_{hash}.html.meta`
+- Automatically bypasses cache if any involved file (layout, partial, component) is modified.
+  
 ---
 
 ## 📤 Controller Interface

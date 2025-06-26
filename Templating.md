@@ -12,18 +12,6 @@
 
 ---
 
-### 💾 Caching System
-Can be set in the `config.ini` file, if not set will be false as default
-```ini
-[global]
-cache_enable = true
-```
-- Cache path: `caches/tpl_{hash}.html`
-- Metadata path: `caches/tpl_{hash}.html.meta`
-- Automatically bypasses cache if any involved file (layout, partial, component) is modified.
-
----
-
 ### ⚙️ Internal Methods
 
 #### `parse(string $content): string`
