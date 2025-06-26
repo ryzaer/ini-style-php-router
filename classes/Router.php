@@ -753,6 +753,7 @@ JS;
 
                 is_dir($self->cachesPath) || mkdir($self->cachesPath,0777);
                 is_dir($self->controllersPath) || mkdir($self->controllersPath,0777);
+                is_dir($self->templatesPath) || mkdir($self->templatesPath,0777);
 
                 foreach ($routes as $key => $line) {
                     $handler = trim($line);

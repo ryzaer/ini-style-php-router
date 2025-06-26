@@ -16,6 +16,7 @@ The `Router` class provides a flexible way to define HTTP routes using a configu
   ├── classes/
   │   └── __fn.php
   │   └── dbHandler.php
+  │   └── mime.types
   │   └── Router.php
   ├── autoload.php
   └── config.ini
@@ -182,33 +183,25 @@ change the `autoload.php` to `vendor/autoload.php`
 require_once 'vendor/autoload.php';
 ```
 Now you can build structure with `index.php` script to:
-```
-php index.php [commands] [ini_file_name]
-```
-- Generate route handler stubs (`php index.php make:handlers config`) including `error_handler`
-- Generate PWA setup (`php index.php make:pwa config`) based on `[pwa]` section
-- Template Cache cleaner (`php index.php clear:caches`)
+- Generate route handler stubs (`make:handlers`) including `error_handler`
+- Generate PWA setup (`make:pwa`) based on `[pwa]` section
+- Template Cache cleaner (`clear:caches`)
 
-After `php index.php make:handlers config` executed, your structure folders will be like this
+CLI patterns:
+```
+php index.php [make:command] [ini_name_file]   ← Sintax to generate handlers or pwa component
+php index.php [clear:command]                  ← Sintax to clear template caches
+```
+
+After `php index.php make:handlers config` is executed, your structure folders will be like this
+
 ```
 /your-app
   ├── caches/
   ├── classes/
-  │   └── Router.php
-  ├── controllers/
-  │   └── ErrorController.php
-  │   └── HomeController.php
-  │   └── ProfileController.php
-  │   └── AuthController.php
-  ├── autoload.php
-  ├── config.ini
-  └── index.php
-```
-then make a folder `templates`, for templating like this
-```
-/your-app
-  ├── caches/
-  ├── classes/
+  │   └── __fn.php
+  │   └── dbHandler.php
+  │   └── mime.types
   │   └── Router.php
   ├── controllers/
   │   └── ErrorController.php
@@ -216,7 +209,6 @@ then make a folder `templates`, for templating like this
   │   └── ProfileController.php
   │   └── AuthController.php
   ├── templates/
-  │   └── components/
   ├── autoload.php
   ├── config.ini
   └── index.php
@@ -239,6 +231,9 @@ so your folder structure now will be
 /your-app
   ├── caches/
   ├── classes/
+  │   └── __fn.php
+  │   └── dbHandler.php
+  │   └── mime.types
   │   └── Router.php
   ├── controllers/
   │   └── ErrorController.php
@@ -246,7 +241,6 @@ so your folder structure now will be
   │   └── ProfileController.php
   │   └── AuthController.php
   ├── templates/
-  │   └── components/
   ├── .htaccess
   ├── autoload.php
   ├── config.ini
