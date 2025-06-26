@@ -153,7 +153,7 @@ public function method($self,$params) {
 
 ## 🛠 Getting start with CLI Extension
 Create a file `index.php`, then run the `Router` class
-```
+```php
 <?php
 require_once 'autoload.php';
 Router::dispatch('config.ini',isset($argv)?$argv:[]);
@@ -174,11 +174,11 @@ We are using a simple `autoload.php` custom file, but you can use composer inste
 }
 ```
 then run
-```
+```bash
 composer dump-autoload
 ```
 change the `autoload.php` to `vendor/autoload.php`
-```
+```php
 <?php
 require_once 'vendor/autoload.php';
 ```
@@ -188,14 +188,14 @@ Now you can build structure with `index.php` script to:
 - Template Cache cleaner (`clear:caches`)
 
 CLI patterns:
-```
+```bash
 php index.php [make:command] [ini_name_file]   ← Sintax to generate handlers or pwa component
 php index.php [clear:command]                  ← Sintax to clear template caches
 ```
 
 After `php index.php make:handlers config` is executed, your structure folders will be like this
 
-```
+```txt
 /your-app
   ├── caches/
   ├── classes/
@@ -214,7 +214,7 @@ After `php index.php make:handlers config` is executed, your structure folders w
   └── index.php
 ```
 don't forget to create `.htaccess` file to protect your configuration `.ini` file or if nginx users can convert on [winginx](https://www.winginx.com/en/htaccess)
-```htaccess
+```xml
 <IfModule mod_rewrite.c>
     Options +FollowSymLinks -MultiViews
     RewriteEngine On
