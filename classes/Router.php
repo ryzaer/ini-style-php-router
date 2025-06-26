@@ -565,13 +565,14 @@ class Router
             }
 
             $output = [];
-            $num = 1;
+            // $num = 1;
             foreach ($list as $item) {
                 $this->set($itemName, $item);
                 // Hilangkan newline hanya di awal dan akhir blok item
                 $parsed = preg_replace('/^[\r\n]+\s{4}|[\r\n]+$/', '', $this->parse($body));
-                $output[] = $num === count($list) ? preg_replace('/[\r\n]/','',$parsed) : $parsed;
-                $num++;
+                $output[] = $parsed;
+                // $output[] = $num === count($list) ? preg_replace('/[\r\n]+/',"",$parsed) : $parsed;
+                // $num++;
             }
 
             // Gabungkan semua item tanpa extra break line

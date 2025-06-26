@@ -106,24 +106,19 @@ class dbHandler
 
     function select(string $table,array $where = [],bool $useLike = false,array $orWhere = []): array {
 
-        $columns = '*';
-        preg_match('/\((.*?)\)/', $table, $matches);
-        if($matches){
-            $table = trim(str_replace($matches[0],'',$table));
-            $rows = trim($matches[1]);
-            $columns = $rows ? $rows : $columns ;
-        }
-        $order = null;
-        preg_match('/\[(.*?)\]/', $table, $matches);
-        if($matches){
-            $table = trim(str_replace($matches[0],'',$table));
-            $order = trim($matches[1]);
-        }
+        $columns = '*';        
+        $order = null;        
         $limit = null;
-        preg_match('/\{(.*?)\}/', $table, $matches);
-        if($matches){
-            $table = trim(str_replace($matches[0],'',$table));
-            $limit = trim($matches[1]);
+        if(preg_match_all('/\((.*?)\)|\[(.*?)\]|\{(.*?)\}/', $table, $matches, PREG_SET_ORDER)){
+            foreach ( $matches as $mtch) {
+                $table = trim(str_replace($mtch[0],'',$table));
+                if($mtch[1])
+                    $columns = trim($mtch[1]) ?: $columns;                
+                if(isset($mtch[2]) && $mtch[2])
+                    $order = trim($mtch[2]);
+                if(isset($mtch[3]) && $mtch[3])
+                    $limit = trim($mtch[3]);
+            }
         }
 
         $sql = "SELECT $columns FROM `$table`";
@@ -166,6 +161,8 @@ class dbHandler
         
         if($limit)
             $sql .=" LIMIT $limit" ;
+
+        var_dump($sql);
         
         $stmt = $this->handler->prepare($sql);
         $stmt->execute($params);
