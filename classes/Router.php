@@ -818,8 +818,7 @@ class Router
                     ];
                 }
 
-                file_put_contents("{$self->basename}/manifest.json", json_encode($manifest, JSON_PRETTY_PRINT));
-                // file_put_contents("{$self->basename}/manifest.json", json_encode($manifest, JSON_PRETTY_echo | JSON_UNESCAPED_SLASHES));
+                file_put_contents("{$self->basename}/manifest.json", json_encode($manifest, JSON_PRETTY_echo | JSON_UNESCAPED_SLASHES));
                 echo "✔ manifest.json success created based on {$prms[2]}.ini\n";
 
                 // Service Worker
