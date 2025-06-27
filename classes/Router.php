@@ -351,9 +351,15 @@ class Router
         return $content;
     }
 
-    function set(string $key, $value): void
+    function set($key, $value=null): void
     {
-        $this->data[$key] = $value;
+        if(is_array($key)){
+            foreach ($key as $k => $v)
+                if(!is_numeric($k))
+                    $this->data[$k] = $v;                
+        }elseif(is_string($key)){
+            $this->data[$key] = $value;
+        }
     }
 
     function get($string)

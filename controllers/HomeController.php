@@ -10,13 +10,16 @@ class HomeController
             'role' => 'Admin',
             'created_at' => '2024-12-31 12:00:00'
         ]);
-        $self->set('path_code', 'other_openscript');
-        $self->set('catalog', [
-            'VivoBook',
-            'Galaxy A52',
-            'Thinkpad E280',
-            'WH-1000XM4'
-        ]);
+        // or set array assoc data
+        $self->set([
+            'path_code' => 'other_openscript',
+            'catalog' => [
+                'VivoBook',
+                'Galaxy A52',
+                'Thinkpad E280',
+                'WH-1000XM4'
+            ]
+        ]);        
         echo $self->render('templates/home.html');
     }
 }
