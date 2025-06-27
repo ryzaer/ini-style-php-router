@@ -42,9 +42,10 @@ GET|POST /profile/{id} = ProfileController@show [auth=true,cors=true]
 POST /login = AuthController@login
 
 [pwa]
-name = My PHP App
-short_name = PHPApp
-description = App iniStyle support 
+name = PHP App iniStyle support
+short_name = I-App
+; description member is optional, and app stores may not use this
+description = PHP application with .ini-based configuration
 start_url = /
 theme_color = #3367D6
 background_color = #ffffff

@@ -793,16 +793,15 @@ class Router
                     exit;
                 }
 
-                $manifest = [
-                    "name" => $pwa['name'] ?? 'My PHP App',
-                    "short_name" => $pwa['short_name'] ?? 'PHPApp',
-                    "description" => $pwa['description'] ?? 'App iniStyle support ',
-                    "start_url" => $pwa['start_url'] ?? './',
-                    "display" => $pwa['display'] ?? 'standalone',
-                    "background_color" => $pwa['background_color'] ?? '#ffffff',
-                    "theme_color" => $pwa['theme_color'] ?? '#3367D6',
-                    "icons" => []
-                ];
+                $manifest["name"] = $pwa['name'] ?? 'App iniStyle support';
+                $manifest["short_name"] = $pwa['short_name'] ?? 'PHPApp';
+                if(isset($pwa['description']) && trim($pwa['description']))
+                    $manifest["description"] = $pwa['description'];
+                $manifest["start_url"] = $pwa['start_url'] ?? './';
+                $manifest["display"] = $pwa['display'] ?? 'standalone';
+                $manifest["background_color"] = $pwa['background_color'] ?? '#ffffff';
+                $manifest["theme_color"] = $pwa['theme_color'] ?? '#3367D6';
+                $manifest["icons"] = [];
 
                 if (!empty($pwa['icon_192'])) {
                     $manifest['icons'][] = [
@@ -819,7 +818,8 @@ class Router
                     ];
                 }
 
-                file_put_contents("{$self->basename}/manifest.json", json_encode($manifest, JSON_PRETTY_echo | JSON_UNESCAPED_SLASHES));
+                file_put_contents("{$self->basename}/manifest.json", json_encode($manifest, JSON_PRETTY_PRINT));
+                // file_put_contents("{$self->basename}/manifest.json", json_encode($manifest, JSON_PRETTY_echo | JSON_UNESCAPED_SLASHES));
                 echo "✔ manifest.json success created based on {$prms[2]}.ini\n";
 
                 // Service Worker
@@ -839,7 +839,7 @@ JS;
                 file_put_contents("{$self->basename}/service-worker.js", $sw);
                 echo "✔ service-worker.js success created!\n";
 
-                echo "\n📌 Add this in your <script> HTML:\n";
+                echo "\n📌 Add this in your <script> HTML after:\n";
                 echo "<link rel=\"manifest\" href=\"manifest.json\">\n";
                 echo "<meta name=\"theme-color\" content=\"{$manifest['theme_color']}\">\n";
                 if (!empty($pwa['icon_192']))
