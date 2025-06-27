@@ -18,13 +18,12 @@ The `Router` class provides a flexible way to define HTTP routes using a configu
   │   └── dbHandler.php
   │   └── mime.types
   │   └── Router.php
-  ├── autoload.php
-  └── config.ini
+  └── autoload.php
 ```
 ---
 ## 🔧 Configuration (`config.ini`)
 
-### ⚙️ File Structure:
+### ⚙️ Section ini variables:
 ```ini
 [global]
 error_handler = ErrorController@handle
@@ -177,10 +176,7 @@ Execute `php index.php make:ini config` and `php index.php make:handlers config`
   │   └── mime.types
   │   └── Router.php
   ├── controllers/
-  │   └── ErrorController.php
   │   └── HomeController.php
-  │   └── ProfileController.php
-  │   └── AuthController.php
   ├── templates/
   ├── autoload.php
   ├── config.ini
@@ -209,10 +205,7 @@ so your folder structure now will be
   │   └── mime.types
   │   └── Router.php
   ├── controllers/
-  │   └── ErrorController.php
   │   └── HomeController.php
-  │   └── ProfileController.php
-  │   └── AuthController.php
   ├── templates/
   ├── .htaccess
   ├── autoload.php

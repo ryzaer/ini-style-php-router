@@ -191,10 +191,7 @@ Now your structure folder must be like this:
   │   └── mime.types
   │   └── Router.php
   ├── controllers/
-  │   └── ErrorController.php
   │   └── HomeController.php
-  │   └── ProfileController.php
-  │   └── AuthController.php
   ├── templates/
   │   └── components/
   │   │   └── footer.html
