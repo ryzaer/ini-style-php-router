@@ -1,33 +1,38 @@
-{{@extends:templates/homepage.html}}
+{{@extends:templates/components/frame.html}}
 
 {{@section:header}}
-    <h1>Selamat Datang</h1>
+    {{@component:'templates/components/header.html' with info="This is Header"}}
 {{@endsection}}
 
 {{@section:content}}
-    {{@component:'templates/components/alert.html' with message="Sukses Login!" type="success"}}
-
-    <p><b><i>Halo, {{@user.name}}</i></b></p>
-    <p>Role: {{@user.role}}</p>
-    <p>{{@judul_article}}</p>
-    <p>Created At: {{@user.created_at|date:"d M Y"}}</p>
-    <a href="./about">about</a>
-    <pre><code>
-        Aktifkan cache section dari config.ini:
-        enable_cache = true
-    </code></pre>
-    <h4>Feature Templating ini</h4>
-    <ul>
-        <li>✅ Layout inheritance</li>
-        <li>✅ Komponen</li>
-        <li>✅ Filter chaining</li>
-        <li>✅ Sistem layout dengan @extends, @section, @endsection, dan @section:... (alias @yield)</li>
-        <li>✅ Parser variabel, helper chaining, include, loop, dan conditionals</li>
-        <li>✅ Caching</li>
-        <li>✅ Auto-refresh + CLI cache cleaner</li>
-    </ul>
+    <!--Example Basic comment!-->
+    {{--Filter comment will not show!--}}
+    <h4><i>Welcome, {{@user.name}}</i></h4>
+    <h5>Example Filters:</h5>
+    <p>Date 1 : {{@user.created_at|date:"d M Y"}}</p>
+    <p>Date 2 : {{date user.created_at "d F Y"}}</p>
+    <p>Lower case : {{lower user.name}} || {{@user.name|lower}}</p>
+    <p>Upper case : {{upper user.name}} || {{@user.name|upper}}</p>
+    <p>Ucwords case : {{@user.name|lower|ucwords}}</p>
+    <h5>Example Basic Includes:</h5>
+    {{'templates/components/other_openscript.html'}}
+    <h5>Example Dynamic Includes:</h5>
+    {{'templates/components/' ~ path_code ~ '.html'}}
+    <h5>Example Conditional:</h5>
+    <p>{{if user.role === 'Admin'}}
+        <i>You are Admin!</i>
+    {{elseif user.role === 'Editor'}}
+        <i>You are Editor!</i>
+    {{else}}
+        <i>You are Quest!</i>
+    {{endif}}</p>
+    <h5>Example Loop:</h5>
+    <ol>
+    {{foreach item in catalog}}
+        <li>{{@item}}</li>
+    {{endforeach}}</ol>
 {{@endsection}}
 
 {{@section:footer}}
-    <small>© 2025 Riza</small>
+    {{@component:'templates/components/footer.html' with info="This is Footer" tribute="© 2025 App iniStyle"}}
 {{@endsection}}

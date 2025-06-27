@@ -74,7 +74,7 @@ controller_path = controllers
 template_path = templates
 
 [router]
-GET / = HomeController@index
+GET / = HomeController@method
 GET|POST /profile/{id} = ProfileController@show [auth=true,cors=true]
 POST /login = AuthController@login
 
