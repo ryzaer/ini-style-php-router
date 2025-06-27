@@ -161,7 +161,7 @@ Now you can build structure with `index.php` script to:
 
 CLI patterns:
 ```shell
-php index.php [make:command] [ini_name_file]   ← Sintax to generate handlers, ini file standard adn pwa component
+php index.php [make:command] [ini_name_file]   ← Sintax to generate handlers, ini file standard and pwa component
 php index.php [clear:command]                  ← Sintax to clear template caches
 ```
 
@@ -212,7 +212,7 @@ so your folder structure now will be
   ├── config.ini
   └── index.php
 ```
-up to here you can move on to the next documentation
+up to here you can move to the next documentation
 
 ##### 📦 Templating [here](./Templating.md)
 ##### 🗄️ Database [here](./Database.md)

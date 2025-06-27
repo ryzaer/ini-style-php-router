@@ -781,9 +781,9 @@ class Router
 ;error_handler = ErrorController@handle
 ;auth_data = 
 ;cache_enable = true
-cache_path = caches
-controller_path = controllers
-template_path = templates
+;cache_path = caches
+;controller_path = controllers
+;template_path = templates
 ; for database default allow extension
 allow_extension = mp4|mp3|jpg|gif|png|webp|pdf|doc|docx|zip
 
