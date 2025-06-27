@@ -775,6 +775,42 @@ class Router
             exit;
         }
 
+        if (isset($prms[2]) && $prms[1] === 'make:ini') {
+            $standard_ini = <<<INI
+[global]
+;error_handler = ErrorController@handle
+;auth_data = 
+;cache_enable = true
+cache_path = caches
+controller_path = controllers
+template_path = templates
+; for database default allow extension
+allow_extension = mp4|mp3|jpg|gif|png|webp|pdf|doc|docx|zip
+
+[router]
+GET / = HomeController@method
+
+[pwa]
+name = PHP App iniStyle support
+short_name = I-App
+; description member is optional, and app stores may not use this
+description = PHP application with .ini-based configuration
+start_url = /
+theme_color = #3367D6
+background_color = #ffffff
+icon_192 = icons/icon-192x192.png
+icon_512 = icons/icon-512x512.png
+display = standalone
+INI;
+            $filetoput = basename(".") . "/{$prms[2]}.ini";
+            if(!file_exists($filetoput)){
+                file_put_contents($filetoput,$standard_ini);
+                echo "✔ {$prms[2]}.ini success created\n";
+            }else{
+                echo "• Skipped (already exists) : $filetoput\n";
+            }
+        }
+
         if (isset($prms[2]) && ($prms[1] === 'make:pwa' || $prms[1] === 'make:handlers')) {
             
             $self = new self("{$prms[2]}.ini");

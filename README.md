@@ -158,12 +158,13 @@ require_once 'vendor/autoload.php';
 ```
 Now you can build structure with `index.php` script to:
 - Generate route handler stubs (`make:handlers`) including `error_handler`
+- Generate standard ini file configuration (`make:ini`)
 - Generate PWA setup (`make:pwa`) based on `[pwa]` section
 - Template Cache cleaner (`clear:caches`)
 
 CLI patterns:
 ```shell
-php index.php [make:command] [ini_name_file]   ← Sintax to generate handlers or pwa component
+php index.php [make:command] [ini_name_file]   ← Sintax to generate handlers, ini file standard adn pwa component
 php index.php [clear:command]                  ← Sintax to clear template caches
 ```
 
