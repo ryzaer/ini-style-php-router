@@ -793,8 +793,8 @@ class Router
                     exit;
                 }
 
-                $manifest["name"] = $pwa['name'] ?? 'App iniStyle support';
-                $manifest["short_name"] = $pwa['short_name'] ?? 'PHPApp';
+                $manifest["name"] = $pwa['name'] ?? 'PHP App iniStyle support';
+                $manifest["short_name"] = $pwa['short_name'] ?? 'I-App';
                 if(isset($pwa['description']) && trim($pwa['description']))
                     $manifest["description"] = $pwa['description'];
                 $manifest["start_url"] = $pwa['start_url'] ?? './';
