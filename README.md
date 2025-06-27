@@ -217,8 +217,8 @@ so your folder structure now will be
 ```
 up to here you can move on to the next documentation
 
-- Templating [here](./Templating.md)
-- Database [here](./Database.md)
+📦 Templating [here](./Templating.md)
+🗄️ Database [here](./Database.md)
 ---
 ## 🧩 Public Methods
 
