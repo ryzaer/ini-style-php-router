@@ -97,6 +97,7 @@ Also create file `templates/components/footer.html`:
 ```html
 <div class="footer">
     <h5>{{@info}}</h5>
+    <small>{{@tribute}}</small>
 </div>
 ```
 For example includes parse, create file `templates/components/other_openscript.html`:
