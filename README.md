@@ -168,7 +168,7 @@ php index.php [make:command] [ini_name_file]   ← Sintax to generate handlers, 
 php index.php [clear:command]                  ← Sintax to clear template caches
 ```
 
-After `php index.php make:handlers config` is executed, your structure folders will be like this
+Execute `php index.php make:ini config` and `php index.php make:handlers config`, your structure folders will be like this
 
 ```txt
 /your-app
