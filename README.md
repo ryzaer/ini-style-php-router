@@ -214,8 +214,8 @@ so your folder structure now will be
 ```
 up to here you can move to the next documentation
 
-##### 📦 Templating [here](./Templating.md)
-##### 🗄️ Database [here](./Database.md)
+##### 📦 Templating [here](./README.Templating.md)
+##### 🗄️ Database [here](./README.Database.md)
 ---
 ## 🧩 Public Methods
 
@@ -244,7 +244,7 @@ Return mime_type based on binary data.
 Return extension based on mime_type of file.
 
 #### `dbConnect(string $user,string $passwd,string $dbname,string $host,string $port,string $type):void`
-Bulk assign connection to manage `insert`, `update`, `delete`, `select` and `create` table in managing [databases](./Database.md)
+Bulk assign connection to manage `insert`, `update`, `delete`, `select` and `create` table in managing [databases](./README.Database.md)
 
 #### `render(string $htmlFileLocation):string`
 Returns the fully rendered HTML string. Auto-handles layout inheritance, components, includes, conditionals, etc.
