@@ -796,6 +796,7 @@ class Router
                 $manifest = [
                     "name" => $pwa['name'] ?? 'My PHP App',
                     "short_name" => $pwa['short_name'] ?? 'PHPApp',
+                    "description" => $pwa['description'] ?? 'App iniStyle support ',
                     "start_url" => $pwa['start_url'] ?? './',
                     "display" => $pwa['display'] ?? 'standalone',
                     "background_color" => $pwa['background_color'] ?? '#ffffff',

@@ -44,6 +44,7 @@ POST /login = AuthController@login
 [pwa]
 name = My PHP App
 short_name = PHPApp
+description = App iniStyle support 
 start_url = /
 theme_color = #3367D6
 background_color = #ffffff
