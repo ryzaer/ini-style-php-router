@@ -27,19 +27,28 @@ The `Router` class provides a flexible way to define HTTP routes using a configu
 #### `fn->custom(...$params)`
 Assign a single customization function, it will be created in `classes/__functions/custom.php`.
 
-#### `set(string $key, mixed $value)`
+#### `set(string $key, mixed $value):void`
 Assign a single variable.
 
-#### `set(array $data)`
+#### `set(array $data):void`
 Bulk assign associative array as variables.
 
 #### `get(string $key):?string`
 Assign a single to get variable sections in `config.ini` or which is set by `set()` function on handlers, exp.`get("global")` or `get("global.auth_data")`.
 
+#### `getAuthData():array`
+Return `auth_data` keys on [global] section variables.
+
+#### `getMimeFile(string $filepath, bool true):string`
+Return mime_type based on file (default:true).
+
+#### `getMimeFile(string $filebin, bool false):string`
+Return mime_type based on binary data.
+
 #### `getExtension(string $mimeType):string`
 Return extension based on mime_type of file.
 
-#### `dbConnect(string $user,string $passwd,string $dbname,string $host,string $port,string $type)`
+#### `dbConnect(string $user,string $passwd,string $dbname,string $host,string $port,string $type):void`
 Bulk assign connection to manage `insert`, `update`, `delete`, `select` and `create` table in managing [databases](./Database.md)
 
 #### `render(string $htmlFileLocation):string`
@@ -48,7 +57,7 @@ Returns the fully rendered HTML string. Auto-handles layout inheritance, compone
 #### `dispatch(string $configFile, array $cliParams):void`
 Bulk assign to run the Router
 
-#### `api_response(int $httpCode,array $Data,array $optionalData,bool $beautifyJSON):string`
+#### `apiResponse(int $httpCode,array $Data,array $optionalData,bool $beautifyJSON):string`
 Simple JSON output
 
 ---
@@ -58,8 +67,8 @@ Simple JSON output
 ```ini
 [global]
 error_handler = ErrorController@handle
-auth_data = username|role|token
-cache_enable = true
+;auth_data = username|role|token
+;cache_enable = true
 cache_path = caches
 controller_path = controllers
 template_path = templates

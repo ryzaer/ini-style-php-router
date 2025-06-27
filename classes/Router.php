@@ -50,7 +50,7 @@ class Router
         return $authData;
     }
 
-    function api_response(int $code,array $result,$custom=[],bool $arg=false)
+    function apiResponse(int $code,array $result,$custom=[],bool $arg=false)
     {
         $response = array_merge($custom,['result'=>$result]);
         http_response_code($code);
@@ -735,6 +735,11 @@ class Router
     function getExtension($mimeType):string
     {
         return \dbHandler::getExtension($mimeType);
+    }
+    
+    function getMimeFile($filePath,$isfile=true):string
+    {
+        return \dbHandler::getMimeFile($filePath,$isfile);
     }
     
     // CLI Command

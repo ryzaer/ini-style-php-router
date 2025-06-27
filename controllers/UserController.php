@@ -11,6 +11,6 @@ class UserController
         // $data->execute();
         $data->execute([':id' => $param->id]);
         // var_dump($data->fetchAll(PDO::FETCH_ASSOC));        
-        $self->api_response(200,$data->fetchAll(PDO::FETCH_ASSOC),$self->getAuthData());
+        $self->apiresponse(200,$data->fetchAll(PDO::FETCH_ASSOC),$self->getAuthData());
     }
 }
