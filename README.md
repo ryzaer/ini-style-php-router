@@ -38,8 +38,6 @@ allow_extension = mp4|mp3|jpg|gif|png|webp|pdf|doc|docx|zip
 
 [router]
 GET / = HomeController@method
-GET|POST /profile/{id} = ProfileController@show [auth=true,cors=true]
-POST /login = AuthController@login
 
 [pwa]
 name = PHP App iniStyle support
