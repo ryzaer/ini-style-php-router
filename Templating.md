@@ -16,14 +16,14 @@
 
 ## 💾 Caching System
 
-- Cache path: `cache/tpl_{hash}.html`
-- Metadata path: `cache/tpl_{hash}.html.meta`
+- Cache path: `caches/tpl_{hash}.html`
+- Metadata path: `caches/tpl_{hash}.html.meta`
 - Automatically bypasses cache if any involved file (layout, partial, component) is modified.
 
 #### CLI Clear Cache:
-Use `clear:cache` to remove all cache files:
+Use `clear:caches` to remove all cache files:
 ```bash
-php index.php clear:cache
+php index.php clear:caches
 ```
 ---
 
