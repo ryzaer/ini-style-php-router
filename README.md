@@ -33,6 +33,8 @@ error_handler = ErrorController@handle
 cache_path = caches
 controller_path = controllers
 template_path = templates
+; for database default allow extension
+allow_extension = mp4|mp3|jpg|gif|png|webp|pdf|doc|docx|zip
 
 [router]
 GET / = HomeController@method
@@ -106,6 +108,7 @@ cache_enable = true
 cache_path = caches           ← Default caches folder
 controller_path = controllers ← Default controllers folder
 template_path = templates     ← Default templates folder
+allow_extension = pdf|jpg|mp4 ← Default allow extension for Database handler
 ```
   
 ---
