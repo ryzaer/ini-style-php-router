@@ -163,6 +163,7 @@ public function method($self,$params) {
 ## 🛠 Getting start with CLI Extension
 Create a file `index.php`, then run the `Router` class
 ```php
+<?php
 require_once 'autoload.php';
 Router::dispatch('config.ini',isset($argv)?$argv:[]);
 ```
@@ -195,7 +196,7 @@ Now you can build structure with `index.php` script to:
 - Template Cache cleaner (`clear:caches`)
 
 CLI patterns:
-```bash
+```shell
 php index.php [make:command] [ini_name_file]   ← Sintax to generate handlers or pwa component
 php index.php [clear:command]                  ← Sintax to clear template caches
 ```
