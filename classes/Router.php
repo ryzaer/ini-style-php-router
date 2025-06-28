@@ -711,7 +711,8 @@ class Router
     protected $extension;
     function dbConnect(...$prms)
     {
-        $data = isset($prms[0]) && isset($this->data['database'][$prms[0]]) ? $this->data['database'][$prms[0]] : [] ; 
+        $keys = isset($prms[0]) ? $prms[0] : 'default';
+        $data = isset($this->data['database'][$keys]) ? $this->data['database'][$keys] : [] ; 
         if(!$data){
             if(isset($prms[0]) && $prms[0])
                 $data['user'] = $prms[0];
