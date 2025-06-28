@@ -91,7 +91,6 @@ class dbHandler
 
     public function update(string $table, array $data, array $where, bool $useLike = false, array $orWhere = []): bool {
         
-
         $setParts = [];
         foreach (array_keys($data) as $col) {
             $setParts[] = "$col = :set_$col";
@@ -135,7 +134,7 @@ class dbHandler
         $stmt = $this->handler->prepare($sql);
 
         foreach ($data as $key => $value) {
-            $useBlob = $this->allowBlob && $this->checkFile($value);
+            $isBlob = $this->allowBlob && $this->checkFile($value);
             $vals = $isBlob ? $this->isAllowFile($value, $this->format) : $value;
             $type = $isBlob ? PDO::PARAM_LOB : ( is_numeric($vals) ? PDO::PARAM_INT : PDO::PARAM_STR );
             $stmt->bindValue(":set_$key", $vals, $type);
@@ -149,6 +148,9 @@ class dbHandler
         foreach ($params as $paramKey => $paramValue) {
             $stmt->bindValue($paramKey, $paramValue);
         }
+
+        $this->format = $this->extension;
+        $this->allowBlob = false;
 
         return $stmt->execute();
     }
