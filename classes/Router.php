@@ -733,8 +733,8 @@ class Router
         $name = isset($data['name'])?$data['name']:'';
         $host = isset($data['host'])?$data['host']:'localhost';
         $port = isset($data['port'])?$data['port']:'3306';
-        $type = isset($data['type'])?$data['type']:'mysql';  
-
+        $type = isset($data['type'])?$data['type']:'mysql';
+        
         try {
             $pdo = new \PDO(sprintf('%s:host=%s;port=%s%s',$type,$host,$port,$name?";dbname=$name":''),$user,$pass);
             $pdo->setAttribute(\PDO::ATTR_ERRMODE,\PDO::ERRMODE_EXCEPTION);
