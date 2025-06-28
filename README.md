@@ -1,11 +1,11 @@
 
 
 # iniStyle PHP Router (micro framework) Class Documentation
-This document describes the usage, structure, and configuration of the `Router` class used for routing in a PHP application with `.ini`-based configuration.
+This document provides a complete guide to the usage, structure, and configuration of the Router class, which is used for routing in PHP applications with .ini-based configuration.
 
-This class includes and integrated templating engine that supports Blade-like syntax, including @extends, @section, filters, includes, components, and caching.
+The Router class comes with an integrated templating engine that supports Blade-like syntax, including @extends, @section, filters, includes, components, and caching.
 
-Also a class extending PDO that provides ready-to-use CRUD functions like `insert`, `update`, `delete`, `select` and `create` table with automatic LONGBLOB file support.
+Additionally, this package includes a PDO-based class that offers ready-to-use CRUD operations such as `insert`, `update`, `delete`, `select`, and `create` Table, with automatic support for LONGBLOB file handling.
 
 ## 📂 Class Overview
 The `Router` class provides a flexible way to define HTTP routes using a configuration `.ini` file and dispatches requests to corresponding controller actions.
