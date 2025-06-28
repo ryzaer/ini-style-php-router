@@ -55,8 +55,9 @@ $db->select(string $table, array $where = [], bool $useLike = false, array $orWh
 ### Example:
 ```php
 $result = $db->select('users[~name, COUNT(id) as total~](~total DESC~){~1,10~}<~role~>:~total > 1:');
-
+```
 This translates to:
+```sql
 SELECT name, COUNT(id) as total FROM users ORDER BY total DESC LIMIT 0,10 GROUP BY role HAVING total > 1
 ```
 
