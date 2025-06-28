@@ -5,14 +5,53 @@ This document describes the structure and usage of the `Database` class, which p
 ---
 
 ## 📌 Class Initialization
+Sintax:
+```php
+$self->dbConnect(string $username,string $password,string $dbname, string $host, string $port, string $type):object
+```
 On your page handler put code below
 ```php
 public function method($self,$params) {
     //---> here....
-    $db = $self->dbConnect();
+    $db = $self->dbConnect('john','123','mydatabase');
 }
 ```
-you can change `allow_extension` on configuration .ini file as default, exp:
+You can add custom `[database]` section in your .ini configuration file, after `[pwa]` section like this:
+```ini
+[database]
+user = root
+pass = 123
+name = dbident
+host = localhost
+```
+then put in handler like this:
+```php
+$db = $self->dbConnect();
+```
+Or you can manage multiple server in you config file like this:
+```ini
+[database:server1]
+user = user1
+pass = p@s51
+name = dbserver1
+host = www.domain1.com
+port = 3307
+
+[database:server2]
+user = user2
+pass = p@s52
+name = dbserver2
+host = www.domain2.com
+port = 3308
+```
+then put in handler like this:
+```php
+$db1 = $self->dbConnect('server1');
+// to do here....
+$db2 = $self->dbConnect('server2');
+// to do here....
+```
+Also you can change `allow_extension` on configuration .ini file as default, exp:
 ```ini
 [global]
 allow_extension = pdf|doc|docx.....

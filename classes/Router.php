@@ -105,8 +105,13 @@ class Router
                             $addsubs=false;
                         }
                     }
-                    if(!$addsubs)
-                        $config[$section[0]][$key] = $value;
+                    if(!$addsubs){
+                        if($section[0] === 'database'){
+                            $config[$section[0]]['default'][$key] = $value;
+                        }else{
+                            $config[$section[0]][$key] = $value;
+                        }
+                    }
                 }
             }else{
                 if (!isset($config[$section[0]])) {
@@ -114,6 +119,7 @@ class Router
                 }
             }
         }
+        var_dump($config);
         return $config;
     }
 
@@ -189,6 +195,8 @@ class Router
         $self = new self($configPath);
         $self->fn = \__fn::get();
         $self->setConfig();
+
+        
         
         if(isset($_SERVER['REQUEST_URI']) && isset($_SERVER['REQUEST_URI'])){
             
@@ -704,9 +712,9 @@ class Router
     protected $extension;
     function dbConnect(...$prms)
     {
-        $data = isset($this->data['database'][$prms[0]]) ? $this->data['database'][$prms[0]] : [] ; 
+        $data = isset($prms[0]) && isset($this->data['database'][$prms[0]]) ? $this->data['database'][$prms[0]] : [] ; 
         if(!$data)
-            $data = isset($this->data['database']) ? $this->data['database'] : [] ; 
+            $data = isset($this->data['database']['default']) ? $this->data['database']['default'] : [] ; 
         if(!$data){
             if(isset($prms[0]) && $prms[0])
                 $data['user'] = $prms[0];
