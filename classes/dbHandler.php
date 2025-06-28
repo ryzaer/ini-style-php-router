@@ -58,33 +58,97 @@ class dbHandler
         return (int) $this->handler->lastInsertId();
     } 
 
-    public function update(string $table, array $data, array $where): bool {
+    // public function update(string $table, array $data, array $where): bool {
+    //     $setParts = [];
+    //     foreach ($data as $key => $_) {
+    //         $setParts[] = "$key = :$key";
+    //     }
+    //     $whereParts = [];
+    //     foreach ($where as $key => $_) {
+    //         $whereParts[] = "$key = :w_$key";
+    //     }
+
+    //     $sql = "UPDATE `$table` SET " . implode(',', $setParts) . " WHERE " . implode(' AND ', $whereParts);
+    //     $stmt = $this->handler->prepare($sql);
+
+    //     foreach ($data as $key => $value) {
+    //         $isBlob = $this->allowBlob && $this->checkFile($value);
+    //         $vals = $isBlob ? $this->isAllowFile($value, $this->format) : $value;
+    //         $type = $isBlob ? PDO::PARAM_LOB : ( is_numeric($vals) ? PDO::PARAM_INT : PDO::PARAM_STR );
+    //         $stmt->bindValue(":$key", $vals, $type);
+    //     }
+
+    //     foreach ($where as $key => $value) {
+    //         $param = is_numeric($value) ? PDO::PARAM_INT : PDO::PARAM_STR;
+    //         $stmt->bindValue(":w_$key", $value, $param);
+    //     }
+
+    //     $this->format = $this->extension;
+    //     $this->allowBlob = false;
+
+    //     return $stmt->execute();
+    // }
+
+    public function update(string $table, array $data, array $where, bool $useLike = false, array $orWhere = []): bool {
+        
+
         $setParts = [];
-        foreach ($data as $key => $_) {
-            $setParts[] = "$key = :$key";
-        }
-        $whereParts = [];
-        foreach ($where as $key => $_) {
-            $whereParts[] = "$key = :w_$key";
+        foreach (array_keys($data) as $col) {
+            $setParts[] = "$col = :set_$col";
         }
 
-        $sql = "UPDATE `$table` SET " . implode(',', $setParts) . " WHERE " . implode(' AND ', $whereParts);
+        $sql = "UPDATE `$table` SET " . implode(", ", $setParts);
+
+        $params = [];
+        $conditions = [];
+
+        foreach ($where as $key => $value) {
+            if ($useLike) {
+                $conditions[] = "$key LIKE :$key";
+                $params[":$key"] = "%$value%";
+            } else {
+                $conditions[] = "$key = :$key";
+                $params[":$key"] = $value;
+            }
+        }
+
+        if (!empty($orWhere)) {
+            $orConditions = [];
+            foreach ($orWhere as $key => $value) {
+                if ($useLike) {
+                    $orConditions[] = "$key LIKE :or_$key";
+                    $params[":or_$key"] = "%$value%";
+                } else {
+                    $orConditions[] = "$key = :or_$key";
+                    $params[":or_$key"] = $value;
+                }
+            }
+            if (!empty($orConditions)) {
+                $conditions[] = '( ' . implode(' OR ', $orConditions) . ' )';
+            }
+        }
+
+        if (!empty($conditions)) {
+            $sql .= ' WHERE ' . implode(' AND ', $conditions);
+        }
+
         $stmt = $this->handler->prepare($sql);
 
         foreach ($data as $key => $value) {
-            $isBlob = $this->allowBlob && $this->checkFile($value);
+            $useBlob = $this->allowBlob && $this->checkFile($value);
             $vals = $isBlob ? $this->isAllowFile($value, $this->format) : $value;
             $type = $isBlob ? PDO::PARAM_LOB : ( is_numeric($vals) ? PDO::PARAM_INT : PDO::PARAM_STR );
-            $stmt->bindValue(":$key", $vals, $type);
+            $stmt->bindValue(":set_$key", $vals, $type);
+            // if ($useBlob && is_file($value)) {
+            //     $stmt->bindValue(":set_$key", file_get_contents($value), PDO::PARAM_LOB);
+            // } else {
+            //     $stmt->bindValue(":set_$key", $value);
+            // }
         }
 
-        foreach ($where as $key => $value) {
-            $param = is_numeric($value) ? PDO::PARAM_INT : PDO::PARAM_STR;
-            $stmt->bindValue(":w_$key", $value, $param);
+        foreach ($params as $paramKey => $paramValue) {
+            $stmt->bindValue($paramKey, $paramValue);
         }
-
-        $this->format = $this->extension;
-        $this->allowBlob = false;
 
         return $stmt->execute();
     }
@@ -100,7 +164,6 @@ class dbHandler
         foreach ($where as $key => $value) {
             $stmt->bindValue(":$key", $value);
         }
-
         return $stmt->execute();
     }
 
