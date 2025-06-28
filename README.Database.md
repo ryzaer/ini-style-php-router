@@ -89,7 +89,7 @@ $db->blob('pdf|doc')->insert(string $table, array $data): int
 
 ### Example:
 ```php
-$id = $db->blob()->insert('users', ['name' => 'John', 'avatar' => 'path/to/file.jpg'], true);
+$id = $db->blob()->insert('users', ['name' => 'John', 'avatar' => 'path/to/file.jpg']);
 ```
 
 ---
