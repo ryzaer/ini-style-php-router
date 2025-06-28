@@ -30,6 +30,12 @@ $db = $self->dbConnect();
 ```
 Or you can manage multiple server in you config file like this:
 ```ini
+[database]
+user = root
+pass = 123
+name = dbident
+host = localhost
+
 [database:server1]
 user = user1
 pass = p@s51
@@ -46,9 +52,11 @@ port = 3308
 ```
 then put in handler like this:
 ```php
-$db1 = $self->dbConnect('server1');
+$db1 = $self->dbConnect();
 // to do here....
-$db2 = $self->dbConnect('server2');
+$db2 = $self->dbConnect('server1');
+// to do here....
+$db3 = $self->dbConnect('server2');
 // to do here....
 ```
 Also you can change `allow_extension` on configuration .ini file as default, exp:
