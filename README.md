@@ -130,7 +130,7 @@ Create a file `index.php`, then run the `Router` class
 require_once 'autoload.php';
 Router::dispatch('config.ini',isset($argv)?$argv:[]);
 ```
-We are using a simple `autoload.php` custom file, but you can use composer instead, create and configure `composer.json`
+We are using a simple custom `autoload.php` file, but you can use Composer instead by creating and configuring a `composer.json` file.
 ```json
 {
     "autoload": {
