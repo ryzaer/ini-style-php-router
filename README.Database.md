@@ -72,7 +72,7 @@ SELECT name, COUNT(id) as total FROM users ORDER BY total DESC LIMIT 0,10 GROUP 
 ### Description:
 Insert data into a table with optional BLOB file support.
 
-### Syntax:
+### Syntax: Output is last insert id (primary key)
 ```php
 $db->insert(string $table, array $data): int
 ```
