@@ -119,7 +119,6 @@ class Router
                 }
             }
         }
-        var_dump($config);
         return $config;
     }
 
