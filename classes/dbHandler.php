@@ -58,37 +58,6 @@ class dbHandler
         return (int) $this->handler->lastInsertId();
     } 
 
-    // public function update(string $table, array $data, array $where): bool {
-    //     $setParts = [];
-    //     foreach ($data as $key => $_) {
-    //         $setParts[] = "$key = :$key";
-    //     }
-    //     $whereParts = [];
-    //     foreach ($where as $key => $_) {
-    //         $whereParts[] = "$key = :w_$key";
-    //     }
-
-    //     $sql = "UPDATE `$table` SET " . implode(',', $setParts) . " WHERE " . implode(' AND ', $whereParts);
-    //     $stmt = $this->handler->prepare($sql);
-
-    //     foreach ($data as $key => $value) {
-    //         $isBlob = $this->allowBlob && $this->checkFile($value);
-    //         $vals = $isBlob ? $this->isAllowFile($value, $this->format) : $value;
-    //         $type = $isBlob ? PDO::PARAM_LOB : ( is_numeric($vals) ? PDO::PARAM_INT : PDO::PARAM_STR );
-    //         $stmt->bindValue(":$key", $vals, $type);
-    //     }
-
-    //     foreach ($where as $key => $value) {
-    //         $param = is_numeric($value) ? PDO::PARAM_INT : PDO::PARAM_STR;
-    //         $stmt->bindValue(":w_$key", $value, $param);
-    //     }
-
-    //     $this->format = $this->extension;
-    //     $this->allowBlob = false;
-
-    //     return $stmt->execute();
-    // }
-
     public function update(string $table, array $data, array $where, bool $useLike = false, array $orWhere = []): bool {
         
         $setParts = [];
@@ -102,34 +71,22 @@ class dbHandler
         $conditions = [];
 
         foreach ($where as $key => $value) {
-            if ($useLike) {
-                $conditions[] = "$key LIKE :$key";
-                $params[":$key"] = "%$value%";
-            } else {
-                $conditions[] = "$key = :$key";
-                $params[":$key"] = $value;
-            }
+            $conditions[] = $useLike ? "$key LIKE :$key" : "$key = :$key";
+            $params[":$key"] = $useLike ? "%$value%" : $value;
         }
 
         if (!empty($orWhere)) {
             $orConditions = [];
             foreach ($orWhere as $key => $value) {
-                if ($useLike) {
-                    $orConditions[] = "$key LIKE :or_$key";
-                    $params[":or_$key"] = "%$value%";
-                } else {
-                    $orConditions[] = "$key = :or_$key";
-                    $params[":or_$key"] = $value;
-                }
+                $orConditions[] = $useLike ? "$key LIKE :or_$key" : "$key = :or_$key";
+                $params[":or_$key"] = $useLike ? "%$value%" : $value;
             }
-            if (!empty($orConditions)) {
-                $conditions[] = '( ' . implode(' OR ', $orConditions) . ' )';
-            }
+            if (!empty($orConditions))
+                $conditions[] = '( ' . implode(' OR ', $orConditions) . ' )';            
         }
 
-        if (!empty($conditions)) {
-            $sql .= ' WHERE ' . implode(' AND ', $conditions);
-        }
+        if (!empty($conditions))
+            $sql .= ' WHERE ' . implode(' AND ', $conditions);        
 
         $stmt = $this->handler->prepare($sql);
 
@@ -138,16 +95,10 @@ class dbHandler
             $vals = $isBlob ? $this->isAllowFile($value, $this->format) : $value;
             $type = $isBlob ? PDO::PARAM_LOB : ( is_numeric($vals) ? PDO::PARAM_INT : PDO::PARAM_STR );
             $stmt->bindValue(":set_$key", $vals, $type);
-            // if ($useBlob && is_file($value)) {
-            //     $stmt->bindValue(":set_$key", file_get_contents($value), PDO::PARAM_LOB);
-            // } else {
-            //     $stmt->bindValue(":set_$key", $value);
-            // }
         }
 
-        foreach ($params as $paramKey => $paramValue) {
+        foreach ($params as $paramKey => $paramValue)
             $stmt->bindValue($paramKey, $paramValue);
-        }
 
         $this->format = $this->extension;
         $this->allowBlob = false;
@@ -157,15 +108,15 @@ class dbHandler
 
     public function delete(string $table, array $where): bool {
         $parts = [];
-        foreach ($where as $key => $_) {
+        foreach ($where as $key => $_)
             $parts[] = "$key = :$key";
-        }
+        
         $sql = "DELETE FROM `$table` WHERE " . implode(' AND ', $parts);
         $stmt = $this->handler->prepare($sql);
 
-        foreach ($where as $key => $value) {
+        foreach ($where as $key => $value) 
             $stmt->bindValue(":$key", $value);
-        }
+        
         return $stmt->execute();
     }
 
@@ -194,26 +145,16 @@ class dbHandler
 
         if (!empty($where)) {
             foreach ($where as $key => $value) {
-                if ($useLike) {
-                    $conditions[] = "$key LIKE :$key";
-                    $params[":$key"] = "%$value%";
-                } else {
-                    $conditions[] = "$key = :$key";
-                    $params[":$key"] = $value;
-                }
+                $conditions[] = $useLike ? "$key LIKE :$key" : "$key = :$key";
+                $params[":$key"] = $useLike ? "%$value%" : $value;
             }
         }
 
         if (!empty($orWhere)) {
             $orConditions = [];
             foreach ($orWhere as $key => $value) {
-                if ($useLike) {
-                    $orConditions[] = "$key LIKE :or_$key";
-                    $params[":or_$key"] = "%$value%";
-                } else {
-                    $orConditions[] = "$key = :or_$key";
-                    $params[":or_$key"] = $value;
-                }
+                $orConditions[] = $useLike ? "$key LIKE :or_$key" : "$key = :or_$key";
+                $params[":or_$key"] = $useLike ? "%$value%" : $value;
             }
             if (!empty($orConditions))
                 $conditions[] = '( ' . implode(' OR ', $orConditions) . ' )';
