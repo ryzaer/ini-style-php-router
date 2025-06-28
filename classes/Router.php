@@ -712,8 +712,6 @@ class Router
     function dbConnect(...$prms)
     {
         $data = isset($prms[0]) && isset($this->data['database'][$prms[0]]) ? $this->data['database'][$prms[0]] : [] ; 
-        if(!$data)
-            $data = isset($this->data['database']['default']) ? $this->data['database']['default'] : [] ; 
         if(!$data){
             if(isset($prms[0]) && $prms[0])
                 $data['user'] = $prms[0];
