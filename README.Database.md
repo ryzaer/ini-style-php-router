@@ -57,7 +57,7 @@ $db->select(string $table, array $where = [], bool $useLike = false, array $orWh
 $result = $db->select('users[~name, COUNT(id) as total~](~total DESC~){~1,10~}<~role~>:~total > 1:');
 
 This translates to:
-SELECT name, COUNT(id) as total FROM users LIMIT 0,10 GROUP BY role HAVING total > 1 ORDER BY total DESC
+SELECT name, COUNT(id) as total FROM users ORDER BY total DESC LIMIT 0,10 GROUP BY role HAVING total > 1
 ```
 
 ### Notes:
