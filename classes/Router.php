@@ -20,13 +20,13 @@ class Router
             }
         }
 
-        if(isset($this->config['global']['cache_path']))
+        if(!empty($this->config['global']['cache_path']))
             $this->cachesPath = $this->config['global']['cache_path'];
-        if(isset($this->config['global']['controller_path']))
+        if(!empty($this->config['global']['controller_path']))
             $this->controllersPath = $this->config['global']['controller_path'];
-        if(isset($this->config['global']['template_path']))
+        if(!empty($this->config['global']['template_path']))
             $this->templatesPath = $this->config['global']['template_path'];
-        if(isset($this->config['global']['allow_extension']))
+        if(!empty($this->config['global']['allow_extension']))
             $this->extension = $this->config['global']['allow_extension'];
 
         
@@ -42,10 +42,10 @@ class Router
     }
     function getAuthData()
     {
-        $authKeys = isset($this->data['global']['auth_data']) ? explode("|",$this->data['global']['auth_data']) : [] ;
+        $authKeys = !empty($this->data['global']['auth_data']) ? explode("|",$this->data['global']['auth_data']) : [] ;
         $authData = [];
         foreach ($authKeys as $key) {
-           $authData[$key] = isset($_SESSION[$key])&&$_SESSION[$key] ? $_SESSION[$key] : ''; 
+           $authData[$key] = !empty($_SESSION[$key]) ? $_SESSION[$key] : ''; 
         }
         return $authData;
     }
@@ -197,7 +197,7 @@ class Router
 
         
         
-        if(isset($_SERVER['REQUEST_URI']) && isset($_SERVER['REQUEST_URI'])){
+        if(isset($_SERVER['REQUEST_URI']) && isset($_SERVER['REQUEST_METHOD'])){
             
             $uri = $_SERVER['REQUEST_URI'];
             $method = $_SERVER['REQUEST_METHOD'];
@@ -226,7 +226,7 @@ class Router
                     array_shift($matches);
                     $params = array_combine($route['params'], $matches);
 
-                    if (isset($route['options']['cors']) && $route['options']['cors']){
+                    if (!empty($route['options']['cors'])){
                         $origin = $route['options']['cors'] === 'true' ? '*' : $route['options']['cors'];  
                         header("Access-Control-Allow-Origin: $origin");
                     }
@@ -682,7 +682,8 @@ class Router
         
         return $content;
     }
-    protected function pwaDetect($string):string{
+    protected function addOnScripts($string):string{
+        // Mendeteksi script PWA
         $manifest = "{$this->basename}/manifest.json";
         $svworker = "{$this->basename}/service-worker.js";
         preg_match_all('/(\s*)<(title|footer)>|<\/(title|footer)>/', $string,$match,PREG_SET_ORDER);
@@ -764,7 +765,7 @@ HTML;
         }
 
         // deteksi jika webapp support pwa
-        $output = $this->pwaDetect($output);
+        $output = $this->addOnScripts($output);
 
         // Simpan cache
         if ($this->enableCache) {
@@ -794,29 +795,29 @@ HTML;
     protected $extension;
     function dbConnect(...$prms)
     {
-        $keys = isset($prms[0]) ? $prms[0] : 'default';
-        $data = isset($this->data['database'][$keys]) ? $this->data['database'][$keys] : [] ; 
+        $keys = !empty($prms[0]) ? $prms[0] : 'default';
+        $data = !empty($this->data['database'][$keys]) ? $this->data['database'][$keys] : [] ; 
         if(!$data){
-            if(isset($prms[0]) && $prms[0])
+            if(!empty($prms[0]))
                 $data['user'] = $prms[0];
-            if(isset($prms[1]) && $prms[1])
+            if(!empty($prms[1]))
                 $data['pass'] = $prms[1];
-            if(isset($prms[2]) && $prms[2])
+            if(!empty($prms[2]))
                 $data['name'] = $prms[2];
-            if(isset($prms[3]) && $prms[3])
+            if(!empty($prms[3]))
                 $data['host'] = $prms[3];
-            if(isset($prms[4]) && $prms[4])
+            if(!empty($prms[4]))
                 $data['port'] = $prms[4];
-            if(isset($prms[5]) && $prms[5])
+            if(!empty($prms[5]))
                 $data['type'] = $prms[5];
         }
 
-        $user = isset($data['user'])?$data['user']:'';
-        $pass = isset($data['pass'])?$data['pass']:'';
-        $name = isset($data['name'])?$data['name']:'';
-        $host = isset($data['host'])?$data['host']:'localhost';
-        $port = isset($data['port'])?$data['port']:'3306';
-        $type = isset($data['type'])?$data['type']:'mysql';
+        $user = !empty($data['user'])?$data['user']:'';
+        $pass = !empty($data['pass'])?$data['pass']:'';
+        $name = !empty($data['name'])?$data['name']:'';
+        $host = !empty($data['host'])?$data['host']:'localhost';
+        $port = !empty($data['port'])?$data['port']:'3306';
+        $type = !empty($data['type'])?$data['type']:'mysql';
         
         try {
             $pdo = new \PDO(sprintf('%s:host=%s;port=%s%s',$type,$host,$port,$name?";dbname=$name":''),$user,$pass);
@@ -868,12 +869,14 @@ HTML;
             $standard_ini = <<<INI
 [global]
 ;error_handler = ErrorController@handle
-;auth_data = 
+; Values separated by "|" .exp (username|password|....)
+auth_data = 
 ;cache_enable = true
 cache_path = caches
 controller_path = controllers
 template_path = templates
 ; for database default allow extension
+; Values separated by "|" .exp (mp4|mp3|jpg|.....)
 allow_extension = mp4|mp3|jpg|gif|png|webp|pdf|doc|docx|zip
 
 [router]
@@ -887,10 +890,11 @@ description = PHP application with .ini-based configuration
 start_url = /
 theme_color = #3367D6
 background_color = #ffffff
+; An icon with a size of 192×192 is required for PWA
 icon_192 = icons/icon-192x192.png
 icon_512 = icons/icon-512x512.png
 ; Screenshots are optional. Recommended narrow size: ≤ 640px
-; values with sepatator | (sc_wide=image960.jpg|image2k.jpg)
+; Values separated by "|" .exp (sc_wide=image960.jpg|image2k.jpg)
 sc_narrow = 
 sc_wide = 
 orientation = any
@@ -915,7 +919,7 @@ INI;
             $pwa = $self->getConfig()['pwa'] ?? [];
             $handlers = [];
 
-            if(isset($global['error_handler']) && $global['error_handler']){
+            if(!empty($global['error_handler'])){
                 $routes['error_handler'] = $global['error_handler'];
             }
 
@@ -927,7 +931,7 @@ INI;
 
                 $manifest["name"] = $pwa['name'] ?? 'PHP App iniStyle support';
                 $manifest["short_name"] = $pwa['short_name'] ?? 'I-App';
-                if(isset($pwa['description']) && trim($pwa['description']))
+                if(!empty($pwa['description']))
                     $manifest["description"] = $pwa['description'];
                 $manifest["start_url"] = $pwa['start_url'] ?? './';
                 $manifest["display"] = $pwa['display'] ?? 'standalone';

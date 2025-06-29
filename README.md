@@ -33,7 +33,7 @@ cache_path = caches
 controller_path = controllers
 template_path = templates
 ; for database default allow extension
-allow_extension = mp4|mp3|jpg|gif|png|webp|pdf|doc|docx|zip
+; allow_extension = mp4|mp3|jpg|gif|png|webp|pdf|doc|docx|zip
 
 [router]
 GET / = HomeController@method
@@ -46,9 +46,17 @@ description = PHP application with .ini-based configuration
 start_url = /
 theme_color = #3367D6
 background_color = #ffffff
+; An icon with a size of 192×192 is required for PWA
 icon_192 = icons/icon-192x192.png
 icon_512 = icons/icon-512x512.png
+; Screenshots are optional. Recommended narrow size: ≤ 640px
+; Values separated by "|" .exp (sc_wide=image960.jpg|image2k.jpg)
+sc_narrow = 
+sc_wide = 
+orientation = any
 display = standalone
+; version is optional
+version =
 ```
 
 ### 📌 Route Syntax
