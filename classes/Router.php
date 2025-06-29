@@ -193,9 +193,7 @@ class Router
         !$cli || self::getCLI($cli);
         $self = new self($configPath);
         $self->fn = \__fn::get();
-        $self->setConfig();
-
-        
+        $self->setConfig();       
         
         if(isset($_SERVER['REQUEST_URI']) && isset($_SERVER['REQUEST_METHOD'])){
             
