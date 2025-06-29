@@ -186,7 +186,7 @@ Run `php index.php make:ini config` and `php index.php make:handlers config`. Do
     </FilesMatch>
 </IfModule>
 ```
-Your folder structure will then look like this:
+Here’s how your folder structure should look:
 ```
 /your-app
   ├── caches/
@@ -203,7 +203,7 @@ Your folder structure will then look like this:
   ├── config.ini
   └── index.php
 ```
-up to here you can move to the next documentation
+You’ve reached this point; you may now proceed to the next documentation.
 
 ##### 📦 Templating [here](./README.Templating.md)
 ##### 🗄️ Database [here](./README.Database.md)
