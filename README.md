@@ -1,5 +1,3 @@
-
-
 # iniStyle PHP Router (micro framework) Class Documentation
 This document provides a complete guide to the usage, structure, and configuration of the Router class, which is used for routing in PHP applications with .ini-based configuration.
 
