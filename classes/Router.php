@@ -358,31 +358,70 @@ class Router
         return $content;
     }
 
-    function set($key, $value=null): void
+    function set($key, $value = null): void
     {
-        if(is_array($key)){
-            foreach ($key as $k => $v)
-                if(!is_numeric($k))
-                    $this->data[$k] = $v;                
-        }elseif(is_string($key)){
-            $this->data[$key] = $value;
+        // Jika batch set (array)
+        if (is_array($key)) {
+            foreach ($key as $k => $v) {
+                if (!is_numeric($k)) {
+                    $this->set($k, $v); // Rekursif
+                }
+            }
+            return;
+        }
+
+        // Jika single key
+        if (is_string($key)) {
+            $segments = explode('.', $key);
+            $data =& $this->data;
+
+            foreach ($segments as $index => $segment) {
+                // Jika segmen terakhir, assign value
+                if ($index === count($segments) - 1) {
+                    if (is_array($data)) {
+                        $data[$segment] = $value;
+                    } elseif (is_object($data)) {
+                        $data->$segment = $value;
+                    }
+                    return;
+                }
+
+                // Jika belum ada, buatkan array atau object default
+                if (is_array($data)) {
+                    if (!isset($data[$segment])) {
+                        $data[$segment] = [];
+                    }
+                    $data =& $data[$segment];
+                } elseif (is_object($data)) {
+                    if (!isset($data->$segment)) {
+                        $data->$segment = new \stdClass();
+                    }
+                    $data =& $data->$segment;
+                } else {
+                    // Jika tipe data bukan array/object, override jadi array baru
+                    $data = [];
+                    $data =& $data[$segment];
+                }
+            }
         }
     }
 
-    function get($string)
+    function get($path, $default = null)
     {
-        $string = explode('.',$string);
-        $key = $string[0];
-        unset($string[0]);
-        $value = trim(implode('.',$string));
-        if($value){
-            if(isset($this->data[$key][$value])) 
-                return $this->data[$key][$value];
-        }else{
-            if(isset($this->data[$key]))
-                return $this->data[$key];
+        $segments = explode('.', $path);
+        $value = $this->data;
+
+        foreach ($segments as $key) {
+            if (is_array($value) && array_key_exists($key, $value)) {
+                $value = $value[$key];
+            } elseif (is_object($value) && property_exists($value, $key)) {
+                $value = $value->$key;
+            } else {
+                return $default;
+            }
         }
-        return null;
+
+        return $value;
     }
 
     protected function getDataValue(string $path)
