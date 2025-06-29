@@ -690,11 +690,13 @@ class Router
             $varss= array_map(function($item) {
                 return preg_replace('/[\r\n]/is',"",$item);
             }, $match);
+            $favicon = isset($this->data['pwa']['icon_192']) && file_exists("{$this->basename}/{$this->data['pwa']['icon_192']}") ?: null ;
+            if($favicon)
+                $favicon = "\n~<link rel=\"icon\" href=\"{$this->basename}/{$this->data['pwa']['icon_192']}\" sizes=\"192x192\">";
 $meta = <<<HTML
 </title>
 ~<link rel="manifest" href="$manifest">
-~<meta name="theme-color" content="#3367D6">
-~<link rel="icon" href="{$this->basename}/icons/resta-192.webp" sizes="192x192">
+~<meta name="theme-color" content="#3367D6">$favicon
 HTML;
 $script = <<<HTML
 </footer>
@@ -868,9 +870,9 @@ HTML;
 ;error_handler = ErrorController@handle
 ;auth_data = 
 ;cache_enable = true
-;cache_path = caches
-;controller_path = controllers
-;template_path = templates
+cache_path = caches
+controller_path = controllers
+template_path = templates
 ; for database default allow extension
 allow_extension = mp4|mp3|jpg|gif|png|webp|pdf|doc|docx|zip
 
@@ -887,6 +889,11 @@ theme_color = #3367D6
 background_color = #ffffff
 icon_192 = icons/icon-192x192.png
 icon_512 = icons/icon-512x512.png
+; Screenshots are optional. Recommended narrow size: ≤ 640px
+; values with sepatator | (sc_wide=image960.jpg|image2k.jpg)
+sc_narrow = 
+sc_wide = 
+orientation = any
 display = standalone
 INI;
             $filetoput = basename(".") . "/{$prms[2]}.ini";
@@ -924,6 +931,7 @@ INI;
                 $manifest["display"] = $pwa['display'] ?? 'standalone';
                 $manifest["background_color"] = $pwa['background_color'] ?? '#ffffff';
                 $manifest["theme_color"] = $pwa['theme_color'] ?? '#3367D6';
+                $manifest["orientation"] = $pwa['orientation'] ?? 'any';
                 $manifest["icons"] = [];
 
                 if (!empty($pwa['icon_192']) && !file_exists($pwa['icon_192'])){
