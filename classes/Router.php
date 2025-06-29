@@ -895,6 +895,8 @@ sc_narrow =
 sc_wide = 
 orientation = any
 display = standalone
+; version is optional
+version =
 INI;
             $filetoput = basename(".") . "/{$prms[2]}.ini";
             if(!file_exists($filetoput)){
@@ -980,9 +982,11 @@ INI;
                         }
                     }
                 }
+                if (!empty($pwa['version']))
+                    $manifest["version"] = $pwa['version'];
 
                 file_put_contents("{$self->basename}/manifest.json", json_encode($manifest, JSON_UNESCAPED_SLASHES));
-                echo "📌 manifest.json success created based on {$prms[2]}.ini\n";
+                echo "📌 manifest.json successfully created based on {$prms[2]}.ini\n";
 
                 // Service Worker
                 $tm = strtotime('now');
@@ -1001,7 +1005,7 @@ self.addEventListener("fetch",function(event){
 JS;
 
                 file_put_contents("{$self->basename}/service-worker.js", $sw);
-                echo "📌 service-worker.js success created!\n";
+                echo "📌 service-worker.js successfully created!\n";
                 echo "✅ PWA is now active!\n";
                 exit;
             }
