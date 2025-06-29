@@ -682,7 +682,46 @@ class Router
         
         return $content;
     }
-
+    protected function pwaDetect($string):string{
+        $manifest = "{$this->basename}/manifest.json";
+        $svworker = "{$this->basename}/service-worker.js";
+        preg_match_all('/(\s*)<(title|footer)>|<\/(title|footer)>/', $string,$match,PREG_SET_ORDER);
+        if(file_exists($manifest) && file_exists($svworker) && $match){
+            $varss= array_map(function($item) {
+                return preg_replace('/[\r\n]/is',"",$item);
+            }, $match);
+$meta = <<<HTML
+</title>
+~<link rel="manifest" href="$manifest">
+~<meta name="theme-color" content="#3367D6">
+~<link rel="icon" href="{$this->basename}/icons/resta-192.webp" sizes="192x192">
+HTML;
+$script = <<<HTML
+</footer>
+~<script>
+~ if ('serviceWorker' in navigator) {
+~   navigator.serviceWorker.register('$svworker')
+~     .then(() => console.log('✅ Service Worker registered'))
+~     .catch(err => console.error('⚠️ Fail register SW:', err));
+~ }
+~</script>
+HTML;
+            if(count($varss)===4){
+                foreach ($varss as $key => $value) {
+                    if($key===0||$key==2){
+                        $format = $meta;
+                        if($key===2){
+                            $format = $script;
+                        }
+                        $format = str_replace('~',$value[1],$format);
+                    }
+                    if($key===1||$key==3)
+                        $string = str_replace(trim($value[0]),$format,$string);                    
+                }
+            }
+        }
+        return $string;
+    }
     function render($layoutFile=null): string
     {
         if (!file_exists($layoutFile)) {
@@ -721,6 +760,9 @@ class Router
         } else {
             $output = $this->parse($content);
         }
+
+        // deteksi jika webapp support pwa
+        $output = $this->pwaDetect($output);
 
         // Simpan cache
         if ($this->enableCache) {
@@ -870,9 +912,9 @@ INI;
 
             if($prms[1] == 'make:pwa'){
                 if (empty($pwa)) {
-                    echo "⚠️ [pwa] path not set on {$prms[2]}.ini\n";
+                    echo "⚠️ [pwa] section's not set on {$prms[2]}.ini\n";
                     exit;
-                }
+                }                
 
                 $manifest["name"] = $pwa['name'] ?? 'PHP App iniStyle support';
                 $manifest["short_name"] = $pwa['short_name'] ?? 'I-App';
@@ -884,55 +926,75 @@ INI;
                 $manifest["theme_color"] = $pwa['theme_color'] ?? '#3367D6';
                 $manifest["icons"] = [];
 
-                if (!empty($pwa['icon_192'])) {
-                    $manifest['icons'][] = [
-                        "src" => $pwa['icon_192'],
-                        "sizes" => "192x192",
-                        "type" => "image/png"
-                    ];
+                if (!empty($pwa['icon_192']) && !file_exists($pwa['icon_192'])){
+                    echo "⚠️ Please provide an icon with a minimum size of 192x192\n";
+                    exit;
                 }
+
+                $read_img = getimagesize("{$self->basename}/{$pwa['icon_192']}");
+                $manifest['icons'][] = [
+                    "src" => $pwa['icon_192'],
+                    "sizes" => "{$read_img[0]}x{$read_img[1]}",
+                    "type" => $read_img['mime']
+                ];
+                
                 if (!empty($pwa['icon_512'])) {
+                    $read_img = getimagesize("{$self->basename}/{$pwa['icon_512']}");
                     $manifest['icons'][] = [
                         "src" => $pwa['icon_512'],
-                        "sizes" => "512x512",
-                        "type" => "image/png"
+                        "sizes" => "{$read_img[0]}x{$read_img[1]}",
+                        "type" => $read_img['mime']
                     ];
                 }
+                foreach (['narrow'=>'≤ 640px','wide'=>'≥ 640px '] as $factory => $size_info) {
+                    if (!empty($pwa["sc_$factory"])) {
+                        foreach (explode("|",$pwa["sc_$factory"]) as $sc_file) {
+                            $sc_file = trim($sc_file);
+                            if(file_exists($sc_file)){
+                                $read_img = getimagesize("{$self->basename}/$sc_file");
+                                $fact_img = false;
+                                if($factory === 'narrow' && $read_img[0] <= 640)
+                                    $fact_img = true;
+                                if($factory === 'wide' && $read_img[0] > 640)
+                                    $fact_img = true;
+                                if(!$fact_img){
+                                    echo "⚠️  Recommended $factory : $size_info (cs_$factory ➞ $sc_file)\n";
+                                }else{
+                                    $manifest['screenshots'][] = [
+                                        "src" => $sc_file,
+                                        "sizes" => "{$read_img[0]}x{$read_img[1]}",
+                                        "type" => $read_img['mime'],
+                                        "form_factor" => $factory
+                                    ];
+                                    $fact_img = false;
+                                }
+                            }
+                        }
+                    }
+                }
 
-                file_put_contents("{$self->basename}/manifest.json", json_encode($manifest, JSON_PRETTY_echo | JSON_UNESCAPED_SLASHES));
-                echo "✔ manifest.json success created based on {$prms[2]}.ini\n";
+                file_put_contents("{$self->basename}/manifest.json", json_encode($manifest, JSON_UNESCAPED_SLASHES));
+                echo "📌 manifest.json success created based on {$prms[2]}.ini\n";
 
                 // Service Worker
+                $tm = strtotime('now');
                 $sw = <<<JS
-self.addEventListener('install', function(e) {
-    console.log('Service Worker: Installed');
-    self.skipWaiting();
-});
-self.addEventListener('activate', function(e) {
-    console.log('Service Worker: Activated');
-});
-self.addEventListener('fetch', function(e) {
-    e.respondWith(fetch(e.request));
+var staticCacheName = "pwa-$tm";
+self.addEventListener("install",function(e){
+    e.waitUntil(caches.open(staticCacheName).then(function(cache){
+        return cache.addAll(["/"])
+    }))
+}); 
+self.addEventListener("fetch",function(event){
+    vent.respondWith(caches.match(event.request).then(function(response){
+        return response || fetch(event.request)
+    }))
 });
 JS;
 
                 file_put_contents("{$self->basename}/service-worker.js", $sw);
-                echo "✔ service-worker.js success created!\n";
-
-                echo "\n📌 Add this in your <script> HTML after:\n";
-                echo "<link rel=\"manifest\" href=\"manifest.json\">\n";
-                echo "<meta name=\"theme-color\" content=\"{$manifest['theme_color']}\">\n";
-                if (!empty($pwa['icon_192']))
-                    echo "<link rel=\"icon\" href=\"{$pwa['icon_192']}\" sizes=\"192x192\">\n";
-
-                echo "\n📌 Add this in <script> HTML to register service worker:\n";
-                echo "<script>\n";
-                echo "if ('serviceWorker' in navigator) {\n";
-                echo "  navigator.serviceWorker.register('service-worker.js')\n";
-                echo "    .then(() => console.log('✅ Service Worker registered'))\n";
-                echo "    .catch(err => console.error('⚠️ Fail register SW:', err));\n";
-                echo "}\n";
-                echo "</script>\n";
+                echo "📌 service-worker.js success created!\n";
+                echo "✅ PWA is now active!\n";
                 exit;
             }
 
