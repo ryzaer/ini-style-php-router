@@ -201,7 +201,7 @@ Here’s how your folder structure should look:
   ├── config.ini
   └── index.php
 ```
-You’ve reached this point; you may now proceed to the next documentation.
+You’ve reached the point; you may now proceed to the next documentation.
 
 ##### 📦 Templating [here](./README.Templating.md)
 ##### 🗄️ Database [here](./README.Database.md)
