@@ -692,9 +692,15 @@ class Router
             $favicon = isset($this->data['pwa']['icon_192']) && file_exists("{$this->basename}/{$this->data['pwa']['icon_192']}") ?: null ;
             if($favicon)
                 $favicon = "\n~<link rel=\"icon\" href=\"{$this->basename}/{$this->data['pwa']['icon_192']}\" sizes=\"192x192\">";
+            $app_name =null;
+            if(!empty($this->data['pwa']['name']))
+                $app_name .= "\n~<meta name=\"application-name\" content=\"{$this->data['pwa']['name']}\"/>\n";
+            if(!empty($this->data['pwa']['description']))
+                $app_name .= "\n~<meta itemprop=\"description\" name=\"description\"  content=\"{$this->data['pwa']['description']}\"/>\n";
+
 $meta = <<<HTML
 </title>
-~<link rel="manifest" href="$manifest">
+~<link rel="manifest" href="$manifest">$app_name
 ~<meta name="theme-color" content="#3367D6">$favicon
 HTML;
 $script = <<<HTML

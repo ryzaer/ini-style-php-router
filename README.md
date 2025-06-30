@@ -33,7 +33,7 @@ controller_path = controllers
 template_path = templates
 ; The allow_extension option is optional for managing file extensions in the database.
 ; Values separated by "|" .exp (mp4|mp3|jpg|.....)
-allow_extension = mp4|mp3|jpg|png|gif|webp|pdf|doc|docx|xls|xlsx|txt|csv|zip|rar|7z|tar|gz|bz2
+allow_extension = 
 
 [router]
 GET / = HomeController@method
@@ -41,7 +41,7 @@ GET / = HomeController@method
 [pwa]
 name = PHP App iniStyle support
 short_name = I-App
-; description member is optional, and app stores may not use this
+; description option is optional, and app stores may not use this
 description = PHP application with .ini-based configuration
 start_url = /
 theme_color = #3367D6
