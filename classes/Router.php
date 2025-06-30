@@ -690,34 +690,33 @@ class Router
             }, $match);
             $favicon = isset($this->data['pwa']['icon_192']) && file_exists("{$this->basename}/{$this->data['pwa']['icon_192']}") ?: null ;
             if($favicon)
-                $favicon = "\n~<link rel=\"icon\" href=\"{$this->basename}/{$this->data['pwa']['icon_192']}\" sizes=\"192x192\">";
+                $favicon = "\n[~]<link rel=\"icon\" href=\"{$this->basename}/{$this->data['pwa']['icon_192']}\" sizes=\"192x192\">";
             $add_meta =null;
             if(!empty($this->data['pwa']['name']))
-                $add_meta .= "\n~<meta name=\"application-name\" content=\"{$this->data['pwa']['name']}\"/>";
+                $add_meta .= "\n[~]<meta name=\"application-name\" content=\"{$this->data['pwa']['name']}\"/>";
             if(!empty($this->data['pwa']['description']))
-                $add_meta .= "\n~<meta name=\"description\" itemprop=\"description\" content=\"{$this->data['pwa']['description']}\"/>";
+                $add_meta .= "\n[~]<meta name=\"description\" itemprop=\"description\" content=\"{$this->data['pwa']['description']}\"/>";
             if(!empty($this->data['pwa']['deindexed']) && $this->data['pwa']['deindexed'] === true){
-                $add_meta .= "\n~<meta name=\"robots\" content=\"noindex, nofollow, noarchive, noodp\">";
-                $add_meta .= "\n~<meta name=\"googlebot\" content=\"noindex, nofollow, noarchive, noodp\" />";
-                $add_meta .= "\n~<meta name=\"googlebot-news\" content=\"noindex, nosnippet, nofollow, noarchive\" />";
-                $add_meta .= "\n~<meta name=\"msnbot\" content=\"all, noindex, nofollow\" />";
-                $add_meta .= "\n~<meta name=\"bingbot\" content=\"index, nofollow, noarchive\" />";
+                $add_meta .= "\n[~]<meta name=\"robots\" content=\"noindex, nofollow, noarchive, noodp\"/>";
+                $add_meta .= "\n[~]<meta name=\"googlebot\" content=\"noindex, nofollow, noarchive, noodp\"/>";
+                $add_meta .= "\n[~]<meta name=\"googlebot-news\" content=\"noindex, nosnippet, nofollow, noarchive\"/>";
+                $add_meta .= "\n[~]<meta name=\"msnbot\" content=\"noindex, nofollow, noarchive, noodp\"/>";
+                $add_meta .= "\n[~]<meta name=\"bingbot\" content=\"noindex, nofollow, noarchive, noodp\"/>";
             }
-
 $meta = <<<HTML
 </title>
-~<link rel="manifest" href="$manifest">$favicon
-~<meta name="theme-color" content="#3367D6">$add_meta
+[~]<link rel="manifest" href="$manifest">$favicon
+[~]<meta name="theme-color" content="#3367D6">$add_meta
 HTML;
 $script = <<<HTML
 </footer>
-~<script>
-~ if ('serviceWorker' in navigator) {
-~   navigator.serviceWorker.register('$svworker')
-~     .then(() => console.log('✅ Service Worker registered'))
-~     .catch(err => console.error('⚠️ Fail register SW:', err));
-~ }
-~</script>
+[~]<script>
+[~] if ('serviceWorker' in navigator) {
+[~]   navigator.serviceWorker.register('$svworker')
+[~]     .then(() => console.log('✅ Service Worker registered'))
+[~]     .catch(err => console.error('⚠️ Fail register SW:', err));
+[~] }
+[~]</script>
 HTML;
             if(count($varss)===4){
                 foreach ($varss as $key => $value) {
@@ -726,7 +725,7 @@ HTML;
                         if($key===2){
                             $format = $script;
                         }
-                        $format = str_replace('~',$value[1],$format);
+                        $format = str_replace('[~]',$value[1],$format);
                     }
                     if($key===1||$key==3)
                         $string = str_replace(trim($value[0]),$format,$string);                    
