@@ -207,7 +207,7 @@ class dbHandler
 
             $stmt = $this->handler->prepare($countSql);
             $stmt->execute($params);
-            $totalRows = (int)$stmt->fetchColumn();
+            $totalRows = (int) $stmt->fetchColumn();
 
             $perPage = $this->paginationState['perPage'];
             $currentPage = $this->paginationState['currentPage'];
@@ -218,9 +218,8 @@ class dbHandler
             $startPage = max(1, $currentPage - floor($range / 2));
             $endPage = min($totalPages, $startPage + $range - 1);
 
-            if ($endPage - $startPage + 1 < $range) {
+            if ($endPage - $startPage + 1 < $range)
                 $startPage = max(1, $endPage - $range + 1);
-            }
 
             $pageList = range($startPage, $endPage);
             $lastThreePages = $totalPages >= 3 ? range($totalPages - 2, $totalPages) : range(1, $totalPages);
