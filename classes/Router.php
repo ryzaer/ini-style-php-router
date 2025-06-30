@@ -1000,8 +1000,19 @@ INI;
                 if (!empty($pwa['version']))
                     $manifest["version"] = $pwa['version'];
 
+                $manifest = "{$self->basename}/manifest.json";
+                $svworker = "{$self->basename}/service-worker.js";
+                $mnf_info = "successfully created based on {$prms[2]}.ini\n";
+                $wrk_info = "successfully created!";
+                $pwa_info = "active";
+                if (file_exists($manifest) || file_exists($svworker)){
+                    $mnf_info = "recreated!\n";
+                    $wrk_info = "recreated!";
+                    $pwa_info = "update";
+                }
+
                 file_put_contents("{$self->basename}/manifest.json", json_encode($manifest, JSON_UNESCAPED_SLASHES));
-                echo "📌 manifest.json successfully created based on {$prms[2]}.ini\n";
+                echo "📌 manifest.json $mnf_info";
 
                 // Service Worker
                 $tm = strtotime('now');
@@ -1020,13 +1031,7 @@ self.addEventListener("fetch",function(event){
 JS;
 
                 file_put_contents("{$self->basename}/service-worker.js", $sw);
-                echo "📌 service-worker.js successfully created!\n";
-                $manifest = "{$self->basename}/manifest.json";
-                $svworker = "{$self->basename}/service-worker.js";
-                $pwa_info = "active";
-                if (file_exists($manifest) || file_exists($svworker))
-                    $pwa_info = "update";
-                
+                echo "📌 service-worker.js $wrk_info\n";
                 echo "✅ PWA is now $pwa_info!\n";
                 exit;
             }
