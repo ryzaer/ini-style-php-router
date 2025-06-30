@@ -5,6 +5,8 @@ class dbHandler
     protected $allowBlob=false;
     protected $extension='mp4|mp3|jpg|png|gif|webp|pdf|doc|xls|txt|csv|zip|tar|7z';
     protected $format;
+    protected $paginationState = false;
+    protected $paginationResult = [];
     function __construct($handler,$extension=null) {
         $this->handler = $handler;
         if($extension)
@@ -120,27 +122,86 @@ class dbHandler
         return $stmt->execute();
     }
 
-    function select(string $table, array $where = [], bool $useLike = false, array $orWhere = []): array {
+    // function select(string $table, array $where = [], bool $useLike = false, array $orWhere = []): array {
 
-        $columns = '*';
-        $order = '';
-        $limit = '';
-        $groupBy = '';
-        $having = '';
+    //     $columns = '*';
+    //     $order = '';
+    //     $limit = '';
+    //     $groupBy = '';
+    //     $having = '';
 
-        if (preg_match_all('/\[~(.*?)~\]|\(~(.*?)~\)|\{~(.*?)~\}|<~(.*?)~>|:~(.*?)~:/', $table, $matches, PREG_SET_ORDER)) {
-            foreach ($matches as $match) {
-                $table = trim(str_replace($match[0], '', $table));
-                if (!empty($match[1])) $columns = trim($match[1])??$columns;
-                if (!empty($match[2])) $order = trim($match[2]);
-                if (!empty($match[3])) $limit = trim($match[3]);
-                if (!empty($match[4])) $groupBy = trim($match[4]);
-                if (!empty($match[5])) $having = trim($match[5]);
-            }
-        }
+    //     if (preg_match_all('/\[~(.*?)~\]|\(~(.*?)~\)|\{~(.*?)~\}|<~(.*?)~>|:~(.*?)~:/', $table, $matches, PREG_SET_ORDER)) {
+    //         foreach ($matches as $match) {
+    //             $table = trim(str_replace($match[0], '', $table));
+    //             if (!empty($match[1])) $columns = trim($match[1])??$columns;
+    //             if (!empty($match[2])) $order = trim($match[2]);
+    //             if (!empty($match[3])) $limit = trim($match[3]);
+    //             if (!empty($match[4])) $groupBy = trim($match[4]);
+    //             if (!empty($match[5])) $having = trim($match[5]);
+    //         }
+    //     }
 
-        $sql = "SELECT $columns FROM `$table`";
-        $params = [];
+    //     $sql = "SELECT $columns FROM `$table`";
+    //     $params = [];
+    //     $conditions = [];
+
+    //     if (!empty($where)) {
+    //         foreach ($where as $key => $value) {
+    //             $conditions[] = $useLike ? "$key LIKE :$key" : "$key = :$key";
+    //             $params[":$key"] = $useLike ? "%$value%" : $value;
+    //         }
+    //     }
+
+    //     if (!empty($orWhere)) {
+    //         $orConditions = [];
+    //         foreach ($orWhere as $key => $value) {
+    //             $orConditions[] = $useLike ? "$key LIKE :or_$key" : "$key = :or_$key";
+    //             $params[":or_$key"] = $useLike ? "%$value%" : $value;
+    //         }
+    //         if (!empty($orConditions))
+    //             $conditions[] = '( ' . implode(' OR ', $orConditions) . ' )';
+    //     }
+
+    //     if (!empty($conditions))
+    //         $sql .= ' WHERE ' . implode(' AND ', $conditions);
+
+    //     if (!empty($groupBy))
+    //         $sql .= " GROUP BY $groupBy";
+
+    //     if (!empty($having))
+    //         $sql .= " HAVING $having";
+
+    //     if (!empty($order))
+    //         $sql .= " ORDER BY $order";
+
+    //     if (!empty($limit)) {
+    //         if (preg_match('/^(\d+)\s*,\s*(\d+)$/', $limit, $pages)) {
+    //             $page = (int)$pages[1];
+    //             $perPage = (int)$pages[2];
+    //             $offset = ($page - 1) * $perPage;
+    //             $sql .= " LIMIT $offset, $perPage";
+    //         } else {
+    //             $sql .= " LIMIT $limit";
+    //         }
+    //     }
+
+    //     $stmt = $this->handler->prepare($sql);
+    //     $stmt->execute($params);
+
+    //     return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // }
+
+    public function pagination(int $perPage, int $currentPage = 1, int $range = 5): self {
+        $this->paginationState = [
+            'perPage' => $perPage,
+            'currentPage' => $currentPage,
+            'range' => $range
+        ];
+        return $this;
+    }
+
+    private function buildCondition(string &$sql, array &$params, array $where, bool $useLike, array $orWhere, string $groupBy, string $having, string $order): void {
+        
         $conditions = [];
 
         if (!empty($where)) {
@@ -170,7 +231,33 @@ class dbHandler
             $sql .= " HAVING $having";
 
         if (!empty($order))
-            $sql .= " ORDER BY $order";
+            $sql .= " ORDER BY $order";        
+    }
+
+    public function select(string $table, array $where = [], bool $useLike = false, array $orWhere = []): array {
+        $columns = '*';
+        $order = '';
+        $limit = '';
+        $groupBy = '';
+        $having = '';
+
+        if (preg_match_all('/\[~(.*?)~\]|\(~(.*?)~\)|\{~(.*?)~\}|<~(.*?)~>|:~(.*?)~:/', $table, $matches, PREG_SET_ORDER)) {
+            $matches = array_map('trim',function ($match) {
+                return $match;
+            });
+            foreach ($matches as $match) {
+                $table = trim(str_replace($match[0], '', $table));
+                if (!empty($match[1])) $columns = $match[1] ?? $columns;
+                if (!empty($match[2])) $order = $match[2];
+                if (!empty($match[3])) $limit = $match[3];
+                if (!empty($match[4])) $groupBy = $match[4];
+                if (!empty($match[5])) $having = $match[5];
+            }
+        }
+
+        $sql = "SELECT $columns FROM `$table`";
+        $params = [];
+        $this->buildCondition($sql, $params, $where, $useLike, $orWhere, $groupBy, $having, $order);        
 
         if (!empty($limit)) {
             if (preg_match('/^(\d+)\s*,\s*(\d+)$/', $limit, $pages)) {
@@ -183,10 +270,53 @@ class dbHandler
             }
         }
 
+        if ($this->paginationState) {
+            $countSql = "SELECT COUNT(*) FROM `$table`";
+            $this->buildCondition($countSql, $params, $where, $useLike, $orWhere, $groupBy, $having, $order);
+
+            $stmt = $this->handler->prepare($countSql);
+            $stmt->execute($params);
+            $totalRows = (int)$stmt->fetchColumn();
+
+            $perPage = $this->paginationState['perPage'];
+            $currentPage = $this->paginationState['currentPage'];
+            $range = $this->paginationState['range'];
+
+            $totalPages = (int)ceil($totalRows / $perPage);
+
+            $startPage = max(1, $currentPage - floor($range / 2));
+            $endPage = min($totalPages, $startPage + $range - 1);
+
+            if ($endPage - $startPage + 1 < $range) {
+                $startPage = max(1, $endPage - $range + 1);
+            }
+
+            $pageList = range($startPage, $endPage);
+            $lastThreePages = $totalPages >= 3 ? range($totalPages - 2, $totalPages) : range(1, $totalPages);
+
+            $this->paginationResult = [
+                'pages' => [
+                    'total' => $totalPages,
+                    'current' => $currentPage,
+                    'first' => 1,
+                    'range' => $pageList,
+                    'Last3' => $lastThreePages
+                ]
+            ];
+        }
+
         $stmt = $this->handler->prepare($sql);
         $stmt->execute($params);
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $resultData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if ($this->paginationState) {
+            $this->paginationResult['data'] = $resultData;
+            $this->paginationState = false;
+            return $this->paginationResult;
+        }
+
+        return $resultData;
     }
 
     function create(string $table, array $columns, string $engine = 'InnoDB', string $charset = 'utf8mb4'): bool
