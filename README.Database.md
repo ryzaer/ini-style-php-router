@@ -59,10 +59,10 @@ $db2 = $self->dbConnect('server1');
 $db3 = $self->dbConnect('server2');
 // to do here....
 ```
-By default, the database class allows the following extensions: `mp4|mp3|jpg|png|gif|webp|pdf|doc|xls|txt|csv|zip|tar|7z`. To change this, update the allow_extension setting in the [global] section of your .ini configuration file:
+By default, the database class allows the following extensions: `mp4|mp3|jpg|png|gif|webp|pdf|doc|xls|txt|csv|zip|tar|7z`. To change this, update the `allow_extensions` setting in the [global] section of your .ini configuration file:
 ```ini
 [global]
-allow_extension = pdf|doc|docx.....
+allow_extensions = pdf|doc|docx.....
 ```
 Alternatively, you can use the specific method `$db->blob(string $extensions, ...)->[insert|update]` for a single execution.
 

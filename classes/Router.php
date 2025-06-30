@@ -26,8 +26,8 @@ class Router
             $this->controllersPath = $this->config['global']['controller_path'];
         if(!empty($this->config['global']['template_path']))
             $this->templatesPath = $this->config['global']['template_path'];
-        if(!empty($this->config['global']['allow_extension']))
-            $this->extension = $this->config['global']['allow_extension'];
+        if(!empty($this->config['global']['allow_extensions']))
+            $this->extension = $this->config['global']['allow_extensions'];
 
         
         $this->cachesPath = "{$this->basename}/{$this->cachesPath}";
@@ -873,9 +873,9 @@ auth_data =
 cache_path = caches
 controller_path = controllers
 template_path = templates
-; The allow_extension option is optional for managing file extensions in the database.
+; The allow_extensions option is optional for managing file extensions in the database.
 ; Values separated by "|" .exp (mp4|mp3|jpg|.....)
-allow_extension = mp4|mp3|jpg|png|gif|webp|pdf|doc|docx|xls|xlsx|txt|csv|zip|rar|7z|tar|gz|bz2
+allow_extensions = mp4|mp3|jpg|png|gif|webp|pdf|doc|docx|xls|xlsx|txt|csv|zip|rar|7z|tar|gz|bz2
 
 [router]
 GET / = HomeController@method
