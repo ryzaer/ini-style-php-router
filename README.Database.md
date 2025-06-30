@@ -59,7 +59,7 @@ $db2 = $self->dbConnect('server1');
 $db3 = $self->dbConnect('server2');
 // to do here....
 ```
-Also you can change `allow_extension` on configuration .ini file as default, exp:
+By default, the database class allows the following extensions: mp4|mp3|jpg|png|gif|webp|pdf|doc|xls|txt|csv|zip|tar|7z. To change this, update the allow_extension setting in the [global] section of your .ini configuration file:
 ```ini
 [global]
 allow_extension = pdf|doc|docx.....
