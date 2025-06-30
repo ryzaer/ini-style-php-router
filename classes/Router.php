@@ -1021,7 +1021,13 @@ JS;
 
                 file_put_contents("{$self->basename}/service-worker.js", $sw);
                 echo "📌 service-worker.js successfully created!\n";
-                echo "✅ PWA is now active!\n";
+                $manifest = "{$self->basename}/manifest.json";
+                $svworker = "{$self->basename}/service-worker.js";
+                $pwa_info = "active";
+                if (file_exists($manifest) || file_exists($svworker))
+                    $pwa_info = "update";
+                
+                echo "✅ PWA is now $pwa_info!\n";
                 exit;
             }
 
