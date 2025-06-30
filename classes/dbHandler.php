@@ -3,7 +3,7 @@ class dbHandler
 {
     protected $handler;
     protected $allowBlob=false;
-    protected $extension='mp4|mp3|jpg|png|gif|webp|pdf|doc|docx|xls|xlsx|txt|csv|zip|rar|7z';
+    protected $extension='mp4|mp3|jpg|png|gif|webp|pdf|doc|xls|txt|csv|zip|tar|7z';
     protected $format;
     function __construct($handler,$extension=null) {
         $this->handler = $handler;

@@ -24,14 +24,16 @@ The `Router` class provides a flexible way to define HTTP routes using a configu
 ### ⚙️ Section ini variables:
 ```ini
 [global]
-error_handler = ErrorController@handle
-;auth_data = username|role|token
+;error_handler = ErrorController@handle
+; Values separated by "|" .exp (username|password|....)
+auth_data = 
 ;cache_enable = true
 cache_path = caches
 controller_path = controllers
 template_path = templates
-; for database default allow extension
-; allow_extension = mp4|mp3|jpg|gif|png|webp|pdf|doc|docx|zip
+; The allow_extension option is optional for managing file extensions in the database.
+; Values separated by "|" .exp (mp4|mp3|jpg|.....)
+allow_extension = mp4|mp3|jpg|png|gif|webp|pdf|doc|docx|xls|xlsx|txt|csv|zip|rar|7z|tar|gz|bz2
 
 [router]
 GET / = HomeController@method
