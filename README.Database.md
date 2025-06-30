@@ -28,7 +28,7 @@ then put in handler like this:
 ```php
 $db = $self->dbConnect();
 ```
-Or you can manage multiple server in you config file like this:
+You can also manage multiple servers by defining them in your config file like this:
 ```ini
 [database]
 user = root
