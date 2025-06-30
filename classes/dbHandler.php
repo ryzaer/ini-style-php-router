@@ -174,8 +174,9 @@ class dbHandler
             $sql .= " HAVING $having";
         }
 
-        if (!empty($order))
-            $sql .= " ORDER BY $order";        
+        if (!empty($order)) {
+            $sql .= " ORDER BY $order";
+        }
     }
 
     public function select(string $table, array $where = [], bool $useLike = false, bool $useRegex = false, array $orWhere = []): array {
