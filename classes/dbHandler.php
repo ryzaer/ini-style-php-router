@@ -131,41 +131,54 @@ class dbHandler
         return $this;
     }
 
-    private function buildCondition(string &$sql, array &$params, array $where, bool $useLike, array $orWhere, string $groupBy, string $having, string $order): void {
-        
+    private function buildCondition(string &$sql, array &$params, array $where, bool $useLike, bool $useRegex, array $orWhere, string $groupBy, string $having, string $order): void {
         $conditions = [];
 
         if (!empty($where)) {
             foreach ($where as $key => $value) {
-                $conditions[] = $useLike ? "$key LIKE :$key" : "$key = :$key";
-                $params[":$key"] = $useLike ? "%$value%" : $value;
+                if ($useRegex) {
+                    $conditions[] = "$key REGEXP :$key";
+                    $params[":$key"] = $value;
+                } else {
+                    $conditions[] = $useLike ? "$key LIKE :$key" : "$key = :$key";
+                    $params[":$key"] = $useLike ? "%$value%" : $value;
+                }
             }
         }
 
         if (!empty($orWhere)) {
             $orConditions = [];
             foreach ($orWhere as $key => $value) {
-                $orConditions[] = $useLike ? "$key LIKE :or_$key" : "$key = :or_$key";
-                $params[":or_$key"] = $useLike ? "%$value%" : $value;
+                if ($useRegex) {
+                    $orConditions[] = "$key REGEXP :or_$key";
+                    $params[":or_$key"] = $value;
+                } else {
+                    $orConditions[] = $useLike ? "$key LIKE :or_$key" : "$key = :or_$key";
+                    $params[":or_$key"] = $useLike ? "%$value%" : $value;
+                }
             }
-            if (!empty($orConditions))
+            if (!empty($orConditions)) {
                 $conditions[] = '( ' . implode(' OR ', $orConditions) . ' )';
+            }
         }
 
-        if (!empty($conditions))
+        if (!empty($conditions)) {
             $sql .= ' WHERE ' . implode(' AND ', $conditions);
+        }
 
-        if (!empty($groupBy))
+        if (!empty($groupBy)) {
             $sql .= " GROUP BY $groupBy";
+        }
 
-        if (!empty($having))
+        if (!empty($having)) {
             $sql .= " HAVING $having";
+        }
 
         if (!empty($order))
             $sql .= " ORDER BY $order";        
     }
 
-    public function select(string $table, array $where = [], bool $useLike = false, array $orWhere = []): array {
+    public function select(string $table, array $where = [], bool $useLike = false, bool $useRegex = false, array $orWhere = []): array {
         $columns = '*';
         $order = '';
         $limit = '';
@@ -173,8 +186,8 @@ class dbHandler
         $having = '';
 
         if (preg_match_all('/\[~(.*?)~\]|\(~(.*?)~\)|\{~(.*?)~\}|<~(.*?)~>|:~(.*?)~:/', $table, $matches, PREG_SET_ORDER)) {
-            $matches = array_map('trim',function ($match) {
-                return $match;
+            array_walk_recursive($matches, function (&$value) {
+                $value = trim($value);
             });
             foreach ($matches as $match) {
                 $table = trim(str_replace($match[0], '', $table));
@@ -188,7 +201,8 @@ class dbHandler
 
         $sql = "SELECT $columns FROM `$table`";
         $params = [];
-        $this->buildCondition($sql, $params, $where, $useLike, $orWhere, $groupBy, $having, $order);        
+
+        $this->buildCondition($sql, $params, $where, $useLike, $useRegex, $orWhere, $groupBy, $having, $order);
 
         if (!empty($limit)) {
             if (preg_match('/^(\d+)\s*,\s*(\d+)$/', $limit, $pages)) {
@@ -203,7 +217,7 @@ class dbHandler
 
         if ($this->paginationState) {
             $countSql = "SELECT COUNT(*) FROM `$table`";
-            $this->buildCondition($countSql, $params, $where, $useLike, $orWhere, $groupBy, $having, $order);
+            $this->buildCondition($countSql, $params, $where, $useLike, $useRegex, $orWhere, $groupBy, $having, $order);
 
             $stmt = $this->handler->prepare($countSql);
             $stmt->execute($params);
@@ -213,13 +227,14 @@ class dbHandler
             $currentPage = $this->paginationState['currentPage'];
             $range = $this->paginationState['range'];
 
-            $totalPages = (int)ceil($totalRows / $perPage);
+            $totalPages = (int) ceil($totalRows / $perPage);
 
             $startPage = max(1, $currentPage - floor($range / 2));
             $endPage = min($totalPages, $startPage + $range - 1);
 
-            if ($endPage - $startPage + 1 < $range)
+            if ($endPage - $startPage + 1 < $range) {
                 $startPage = max(1, $endPage - $range + 1);
+            }
 
             $pageList = range($startPage, $endPage);
             $lastThreePages = $totalPages >= 3 ? range($totalPages - 2, $totalPages) : range(1, $totalPages);
