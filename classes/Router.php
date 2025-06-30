@@ -93,7 +93,8 @@ class Router
                 if ($section[0] == 'router') {
                     $config[$section[0]][] = $line;
                 } else {
-                    [$key, $value] = array_map('trim', explode('=', $line, 2));
+                    [$key, $value] = array_map('trim', explode('=', $line, 2));                    
+                    $value = $this->convertValue($value);                    
                     $addsubs=true;
                     if ($section[0] === 'global' || $section[0] === 'pwa') {
                         $config[$section[0]][$key] = $value;
@@ -193,7 +194,7 @@ class Router
         !$cli || self::getCLI($cli);
         $self = new self($configPath);
         $self->fn = \__fn::get();
-        $self->setConfig();       
+        $self->setConfig();  
         
         if(isset($_SERVER['REQUEST_URI']) && isset($_SERVER['REQUEST_METHOD'])){
             
@@ -206,7 +207,7 @@ class Router
 
             $errorHandler = $self->get('global.error_handler');
             // conditional templating cache
-            if($self->get('global.cache_enable') === 'true' )
+            if($self->get('global.cache_enable') === true )
                 $self->enableCache = true;
             
             if (!isset($self->routes[$method])) {
@@ -225,11 +226,11 @@ class Router
                     $params = array_combine($route['params'], $matches);
 
                     if (!empty($route['options']['cors'])){
-                        $origin = $route['options']['cors'] === 'true' ? '*' : $route['options']['cors'];  
+                        $origin = $route['options']['cors'] === true ? '*' : $route['options']['cors'];  
                         header("Access-Control-Allow-Origin: $origin");
                     }
 
-                    if (!empty($route['options']['auth']) && $route['options']['auth'] === 'true') {
+                    if (!empty($route['options']['auth']) && $route['options']['auth'] === true) {
                         session_start();
                         if($self->get('global.auth_data')){
                             $authKeys = explode('|', $self->get('global.auth_data') ?? '');
@@ -270,7 +271,6 @@ class Router
             }
         }
     }
-
     
     // ini bagian layouting
     protected array $data = [];
@@ -582,22 +582,21 @@ class Router
     protected function convertValue(string $value)
     {
         // Tangani array kosong
-        if ($value === '[]') return [];
-
-        // Tangani boolean
-        if ($value === 'true') return true;
-        if ($value === 'false') return false;
-
-        // Tangani string dengan kutip
-        if (preg_match('/^[\'"](.*)[\'"]$/', $value, $match)) {
+        if ($value === '[]') 
+            return [];
+        // Tangani null string
+        if (strtolower($value) === 'null')
+            return null;
+        // Tangani boolean (support case-insensitive)
+        if (strtolower($value) === 'true' || strtolower($value) === 'false')
+            return filter_var($value, FILTER_VALIDATE_BOOLEAN);
+        // Tangani string dengan kutip tunggal atau ganda
+        if (preg_match('/^[\'"](.*)[\'"]$/', $value, $match))
             return $match[1];
-        }
-
-        // Tangani angka
-        if (is_numeric($value)) {
-            return $value + 0; // Convert to int or float
-        }
-
+        // Tangani angka (otomatis ke int/float)
+        if (is_numeric($value))
+            return $value + 0;
+        // Jika tidak termasuk tipe di atas, kembalikan string as-is
         return $value;
     }
     
@@ -692,16 +691,23 @@ class Router
             $favicon = isset($this->data['pwa']['icon_192']) && file_exists("{$this->basename}/{$this->data['pwa']['icon_192']}") ?: null ;
             if($favicon)
                 $favicon = "\n~<link rel=\"icon\" href=\"{$this->basename}/{$this->data['pwa']['icon_192']}\" sizes=\"192x192\">";
-            $app_name =null;
+            $add_meta =null;
             if(!empty($this->data['pwa']['name']))
-                $app_name .= "\n~<meta name=\"application-name\" content=\"{$this->data['pwa']['name']}\"/>\n";
+                $add_meta .= "\n~<meta name=\"application-name\" content=\"{$this->data['pwa']['name']}\"/>";
             if(!empty($this->data['pwa']['description']))
-                $app_name .= "\n~<meta itemprop=\"description\" name=\"description\"  content=\"{$this->data['pwa']['description']}\"/>\n";
+                $add_meta .= "\n~<meta name=\"description\" itemprop=\"description\" content=\"{$this->data['pwa']['description']}\"/>";
+            if(!empty($this->data['pwa']['deindexed']) && $this->data['pwa']['deindexed'] === true){
+                $add_meta .= "\n~<meta name=\"robots\" content=\"noindex, nofollow, noarchive, noodp\">";
+                $add_meta .= "\n~<meta name=\"googlebot\" content=\"noindex, nofollow, noarchive, noodp\" />";
+                $add_meta .= "\n~<meta name=\"googlebot-news\" content=\"noindex, nosnippet, nofollow, noarchive\" />";
+                $add_meta .= "\n~<meta name=\"msnbot\" content=\"all, noindex, nofollow\" />";
+                $add_meta .= "\n~<meta name=\"bingbot\" content=\"index, nofollow, noarchive\" />";
+            }
 
 $meta = <<<HTML
 </title>
-~<link rel="manifest" href="$manifest">$app_name
-~<meta name="theme-color" content="#3367D6">$favicon
+~<link rel="manifest" href="$manifest">$favicon
+~<meta name="theme-color" content="#3367D6">$add_meta
 HTML;
 $script = <<<HTML
 </footer>
@@ -891,7 +897,9 @@ name = PHP App iniStyle support
 short_name = I-App
 ; description member is optional, and app stores may not use this
 description = PHP application with .ini-based configuration
-start_url = /
+start_url = ./
+; Deindexed option is optional, allow robots to index the page or not
+deindexed = false
 theme_color = #3367D6
 background_color = #ffffff
 ; An icon with a size of 192×192 is required for PWA
@@ -945,7 +953,7 @@ INI;
                 $manifest["icons"] = [];
 
                 if (!empty($pwa['icon_192']) && !file_exists($pwa['icon_192'])){
-                    echo "⚠️ Please provide an icon with a minimum size of 192x192\n";
+                    echo "⚠️  Please provide an icon with a minimum size of 192x192\n";
                     exit;
                 }
 
@@ -956,7 +964,7 @@ INI;
                     "type" => $read_img['mime']
                 ];
                 
-                if (!empty($pwa['icon_512'])) {
+                if (!empty($pwa['icon_512']) && !file_exists($pwa['icon_192'])) {
                     $read_img = getimagesize("{$self->basename}/{$pwa['icon_512']}");
                     $manifest['icons'][] = [
                         "src" => $pwa['icon_512'],
