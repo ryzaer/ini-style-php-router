@@ -705,7 +705,7 @@ class Router
             }
 $meta = <<<HTML
 </title>
-[~]<link rel="manifest" href="$manifest">$favicon
+[~]<link rel="manifest" href="$dir_mnfs">$favicon
 [~]<meta name="theme-color" content="#3367D6">$add_meta
 HTML;
 $script = <<<HTML
