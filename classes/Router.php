@@ -681,10 +681,10 @@ class Router
     }
     protected function addOnScripts($string):string{
         // Mendeteksi script PWA
-        $manifest = "{$this->basename}/manifest.json";
+        $dir_mnfs = "{$this->basename}/manifest.json";
         $svworker = "{$this->basename}/service-worker.js";
         preg_match_all('/(\s*)<(title|footer)>|<\/(title|footer)>/', $string,$match,PREG_SET_ORDER);
-        if(file_exists($manifest) && file_exists($svworker) && $match){
+        if(file_exists($dir_mnfs) && file_exists($svworker) && $match){
             $varss= array_map(function($item) {
                 return preg_replace('/[\r\n]/is',"",$item);
             }, $match);
@@ -1000,12 +1000,12 @@ INI;
                 if (!empty($pwa['version']))
                     $manifest["version"] = $pwa['version'];
 
-                $manifest = "{$self->basename}/manifest.json";
+                $dir_mnfs = "{$self->basename}/manifest.json";
                 $svworker = "{$self->basename}/service-worker.js";
                 $mnf_info = "successfully created based on {$prms[2]}.ini\n";
                 $wrk_info = "successfully created!";
                 $pwa_info = "active";
-                if (file_exists($manifest) || file_exists($svworker)){
+                if (file_exists($dir_mnfs) || file_exists($svworker)){
                     $mnf_info = "recreated!\n";
                     $wrk_info = "recreated!";
                     $pwa_info = "update";
