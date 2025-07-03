@@ -173,7 +173,15 @@ php index.php [make:command] [ini_name_file]   ← Sintax to generate handlers, 
 php index.php [clear:command]                  ← Sintax to clear template caches
 ```
 
-Run `php index.php make:ini config` and `php index.php make:handlers config`. Don't forget to create an `.htaccess` file to protect your .ini configuration files. If you are using Nginx, you can convert the rule using [Winginx](https://www.winginx.com/en/htaccess)
+First step run command in terminal :
+```
+php index.php make:ini config
+```
+Then run :
+```
+php index.php make:handlers config
+```
+Don't forget to create an `.htaccess` file to protect your .ini configuration files. If you are using Nginx, you can convert the rule using [Winginx](https://www.winginx.com/en/htaccess)
 ```xml
 <IfModule mod_rewrite.c>
     Options +FollowSymLinks -MultiViews
