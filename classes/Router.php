@@ -180,7 +180,18 @@ class Router
             if (class_exists($controller)) {
                 $obj = new $controller();
                 if (method_exists($obj, $action)) {
-                    $obj->$action($this,(object)$params);
+                    $obj->routes = $this->routes;
+                    $obj->fn = $this->fn;
+                    $obj->data = $this->data;
+                    $obj->sections = $this->sections;
+                    $obj->parentLayout = $this->parentLayout;
+                    $obj->enableCache = $this->enableCache;
+                    $obj->includedFiles = $this->includedFiles;
+                    $obj->extension = $this->extension;
+                    $obj->cachesPath = $this->cachesPath;
+                    $obj->controllersPath = $this->controllersPath;
+                    // now execute method
+                    $obj->$action((object)$params);
                     return true;
                 }
             }
@@ -1051,12 +1062,12 @@ JS;
 
                 foreach ($handlers as $controller => $methods) {
                     $file = "{$self->controllersPath}/{$controller}.php";
-                    $classDef = "<?php\n\nclass $controller\n{\n";
+                    $classDef = "<?php\n\nclass $controller extends \\Router\n{\n";
 
                     $uniqueMethods = array_unique($methods);
 
                     foreach ($uniqueMethods as $method) {
-                        $classDef .= "    function $method(\$self,\$params)\n    {\n        // TODO: implement $method\n    }\n\n";
+                        $classDef .= "    function $method(\$params)\n    {\n        // TODO: implement $method\n    }\n\n";
                     }
 
                     $classDef .= "}\n";
@@ -1070,7 +1081,7 @@ JS;
                         $updated = false;
                         foreach ($uniqueMethods as $method) {
                             if (!preg_match('/function\\s+' . preg_quote($method, '/') . '\\s*\\(/', $content)) {
-                                $append = "\n    function $method(\$self,\$params)\n    {\n        // TODO: implement $method\n    }\n";
+                                $append = "\n    function $method(\$params)\n    {\n        // TODO: implement $method\n    }\n";
                                 $content = preg_replace('/\\}\\s*$/', $append . "\n}", $content);
                                 $updated = true;
                             }
