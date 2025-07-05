@@ -7,13 +7,13 @@ This document describes the structure and usage of the `Database` class, which p
 ## 📌 Class Initialization
 Sintax:
 ```php
-$self->dbConnect(string $username,string $password,string $dbname, string $host, string $port, string $type):object
+$this->dbConnect(string $username,string $password,string $dbname, string $host, string $port, string $type):object
 ```
 On your page handler put code below
 ```php
-public function method($self,$params) {
+public function method($params) {
     //---> here....
-    $db = $self->dbConnect('john','123','mydatabase');
+    $db = $this->dbConnect('john','123','mydatabase');
 }
 ```
 You can add custom `[database]` section in your .ini configuration file, after `[pwa]` section like this:
@@ -26,7 +26,7 @@ host = localhost
 ```
 then put in handler like this:
 ```php
-$db = $self->dbConnect();
+$db = $this->dbConnect();
 ```
 You can also manage multiple servers by defining them in your config file like this:
 ```ini
@@ -52,11 +52,11 @@ port = 3308
 ```
 then put in handler like this:
 ```php
-$db1 = $self->dbConnect();
+$db1 = $this->dbConnect();
 // to do here....
-$db2 = $self->dbConnect('server1');
+$db2 = $this->dbConnect('server1');
 // to do here....
-$db3 = $self->dbConnect('server2');
+$db3 = $this->dbConnect('server2');
 // to do here....
 ```
 By default, the database class allows the following extensions: `mp4|mp3|jpg|png|gif|webp|pdf|doc|xls|txt|csv|zip|tar|7z`. To change this, update the `allow_extension` setting in the [global] section of your .ini configuration file:

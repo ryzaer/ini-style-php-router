@@ -48,16 +48,16 @@ php index.php clear:caches
 ## ✅ Example Usage
 Put it inside `controllers/HomeController.php` file;
 ```php
-public function method($self,$params) {
+public function method($params) {
     //---> here....
-    $self->set('title', 'Dashboard');
-    $self->set('user', [
+    $this->set('title', 'Dashboard');
+    $this->set('user', [
         'name' => 'JoHn dOe',
         'role' => 'Admin',
         'created_at' => '2024-12-31 12:00:00'
     ]);
     // or set array assoc data
-    $self->set([
+    $this->set([
         // for dynamic includes
         'path_code' => 'other_openscript',
         'catalog' => [
@@ -67,7 +67,7 @@ public function method($self,$params) {
             'WH-1000XM4'
         ]
     ]);        
-    echo $self->render('templates/home.html');
+    echo $this->render('templates/home.html');
 }
 ```
 Create folder `components` inside folder `templates`, then create html file `frame.html` inside it  `templates/components/frame.html`:

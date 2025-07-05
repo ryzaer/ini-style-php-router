@@ -124,8 +124,7 @@ allow_extension = pdf|jpg|mp4 ← Default allow extension for Database handler
 
 Each route must map to a controller file `controllers/NameController.php` which is implemented from the router section `NameController@method`, and the method should look like:
 ```php
-public function method($self,$params) {
-    // $self is the Router instance
+public function method($params) {
     // $params is an object http_code & from url router {params}
 }
 ```
