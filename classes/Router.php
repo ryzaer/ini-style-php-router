@@ -904,6 +904,7 @@ GET / = HomeController@method
 
 [pwa]
 name = PHP App iniStyle support
+lang = en
 short_name = I-App
 ; description member is optional, and app stores may not use this
 description = PHP application with .ini-based configuration
@@ -952,6 +953,8 @@ INI;
                 }                
 
                 $manifest["name"] = $pwa['name'] ?? 'PHP App iniStyle support';
+                if(!empty($pwa['lang']))
+                    $manifest["lang"] = $pwa['lang'];
                 $manifest["short_name"] = $pwa['short_name'] ?? 'I-App';
                 if(!empty($pwa['description']))
                     $manifest["description"] = $pwa['description'];
