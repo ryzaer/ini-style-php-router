@@ -4,6 +4,7 @@ class Router
 {
     private $routes = [];
     private $fn;
+    protected $http_base;
 
     function __construct($configPath=null)
     {
@@ -189,6 +190,7 @@ class Router
                     $obj->extension = $this->extension;
                     $obj->cachesPath = $this->cachesPath;
                     $obj->controllersPath = $this->controllersPath;
+                    $obj->http_base= $this->http_base;
                     // now execute method
                     $obj->$action((object)$params);
                     return true;
@@ -198,7 +200,7 @@ class Router
 
         return false;
     }
-
+    
     static function dispatch($configPath,$cli=[])
     {
         !$cli || self::getCLI($cli);
@@ -213,9 +215,11 @@ class Router
             $method = $_SERVER['REQUEST_METHOD'];
             $method = strtoupper($method);
             // $params = ['url_path'=>preg_replace('/[^0-9a-zA-Z]/','',$path)];
-            $pgname = explode(' ',trim(preg_replace(['/[^0-9a-zA-Z]/','/\s+/'],' ',$path)));
-            $pgbase = str_repeat('../',count($pgname)-1);
-            $params = ['path'=>$pgname[0],'base'=>$pgbase ?: "./",'data'=>[]];
+            $psplit = explode('/',$path);
+            $pgname = array_filter(array_values($psplit));
+            $pgbase = str_repeat('../',count($psplit)-2);
+            $self->http_base = $pgbase;
+            $params = ['path'=> empty($pgname[0]) ?: preg_replace('/[^0-9a-zA-Z]/','',$pgname[0]),'base'=>$pgbase ?: "./",'data'=>[]];
 
             $errorHandler = $self->get('global.error_handler');
             // conditional templating cache
@@ -693,6 +697,7 @@ class Router
         return $content;
     }
     protected function addOnScripts($string):string{
+        $this->http_base = $this->http_base ? $this->http_base : "{$this->basename}/";
         // Mendeteksi script PWA
         $dir_mnfs = "{$this->basename}/manifest.json";
         $svworker = "{$this->basename}/service-worker.js";
@@ -703,7 +708,7 @@ class Router
             }, $match);
             $favicon = isset($this->data['pwa']['icon_192']) && file_exists("{$this->basename}/{$this->data['pwa']['icon_192']}") ?: null ;
             if($favicon)
-                $favicon = "\n[~]<link rel=\"icon\" href=\"{$this->basename}/{$this->data['pwa']['icon_192']}\" sizes=\"192x192\">";
+                $favicon = "\n[~]<link rel=\"icon\" href=\"{$this->http_base}{$this->data['pwa']['icon_192']}\" sizes=\"192x192\">";
             $add_meta =null;
             if(!empty($this->data['pwa']['name']))
                 $add_meta .= "\n[~]<meta name=\"application-name\" content=\"{$this->data['pwa']['name']}\"/>";
@@ -716,16 +721,17 @@ class Router
                 $add_meta .= "\n[~]<meta name=\"msnbot\" content=\"noindex, nofollow, noarchive, noodp\"/>";
                 $add_meta .= "\n[~]<meta name=\"bingbot\" content=\"noindex, nofollow, noarchive, noodp\"/>";
             }
+$color = $this->get('pwa.theme_color');
 $meta = <<<HTML
 </title>
-[~]<link rel="manifest" href="$dir_mnfs">$favicon
-[~]<meta name="theme-color" content="#3367D6">$add_meta
+[~]<link rel="manifest" href="{$this->http_base}manifest.json">$favicon
+[~]<meta name="theme-color" content="$color">$add_meta
 HTML;
 $script = <<<HTML
 </footer>
 [~]<script>
 [~] if ('serviceWorker' in navigator) {
-[~]   navigator.serviceWorker.register('$svworker')
+[~]   navigator.serviceWorker.register('{$this->http_base}service-worker.js')
 [~]     .then(() => console.log('✅ Service Worker registered'))
 [~]     .catch(err => console.error('⚠️ Fail register SW:', err));
 [~] }
