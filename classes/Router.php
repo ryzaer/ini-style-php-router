@@ -169,8 +169,7 @@ class Router
     private function includeHandler($route, $params, $http_code=200)
     {
         if (!strpos($route, '@')) return false;
-
-        $params= array_merge(["http_code" => $http_code],$params);
+        $params = array_merge(["code" => $http_code],$params);
 
         [$controller, $action] = explode('@', $route, 2);
         $controllerFile = "{$this->controllersPath}/{$controller}.php";
@@ -210,11 +209,13 @@ class Router
         if(isset($_SERVER['REQUEST_URI']) && isset($_SERVER['REQUEST_METHOD'])){
             
             $uri = $_SERVER['REQUEST_URI'];
+            $path = str_replace(substr($_SERVER['SCRIPT_NAME'],0,-10),'',parse_url($uri, PHP_URL_PATH));
             $method = $_SERVER['REQUEST_METHOD'];
-            $path = parse_url($uri, PHP_URL_PATH);
             $method = strtoupper($method);
-            $params = [];
-            $path = str_replace(substr($_SERVER['SCRIPT_NAME'], 0, -10), '', $path);
+            // $params = ['url_path'=>preg_replace('/[^0-9a-zA-Z]/','',$path)];
+            $pgname = explode(' ',trim(preg_replace(['/[^0-9a-zA-Z]/','/\s+/'],' ',$path)));
+            $pgbase = str_repeat('../',count($pgname)-1);
+            $params = ['path'=>$pgname[0],'base'=>$pgbase ?: "./",'data'=>[]];
 
             $errorHandler = $self->get('global.error_handler');
             // conditional templating cache
@@ -234,7 +235,8 @@ class Router
             foreach ($self->routes[$method] as $route) {
                 if (preg_match($route['regex'], $path, $matches)) {
                     array_shift($matches);
-                    $params = array_combine($route['params'], $matches);
+                    $chkprm = array_combine($route['params'],$matches);
+                    $params = array_merge($params,['data'=> !empty($chkprm) ? (object) $chkprm : [] ]);
 
                     if (!empty($route['options']['cors'])){
                         $origin = $route['options']['cors'] === true ? '*' : $route['options']['cors'];  
@@ -261,7 +263,7 @@ class Router
                             }
                         }
                     }
-
+                    
                     if ($self->includeHandler($route['handler'], $params)) return;
                     
                     http_response_code(500);
@@ -1070,7 +1072,7 @@ JS;
                     $uniqueMethods = array_unique($methods);
 
                     foreach ($uniqueMethods as $method) {
-                        $classDef .= "    function $method(\$params)\n    {\n        // TODO: implement $method\n    }\n\n";
+                        $classDef .= "    function $method(\$http)\n    {\n        // TODO: implement $method\n    }\n\n";
                     }
 
                     $classDef .= "}\n";
@@ -1084,7 +1086,7 @@ JS;
                         $updated = false;
                         foreach ($uniqueMethods as $method) {
                             if (!preg_match('/function\\s+' . preg_quote($method, '/') . '\\s*\\(/', $content)) {
-                                $append = "\n    function $method(\$params)\n    {\n        // TODO: implement $method\n    }\n";
+                                $append = "\n    function $method(\$http)\n    {\n        // TODO: implement $method\n    }\n";
                                 $content = preg_replace('/\\}\\s*$/', $append . "\n}", $content);
                                 $updated = true;
                             }
