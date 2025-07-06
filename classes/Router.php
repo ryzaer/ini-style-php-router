@@ -701,6 +701,18 @@ class Router
     }
     protected function addOnScripts($string):string{
         $this->http_base = $this->http_base ? $this->http_base : "{$this->basename}/";
+        // deteksi language di initial <html> 
+        if(!empty($this->data['pwa']['lang'])){
+            $lang = $this->data['pwa']['lang'];
+             // Jika sudah ada atribut lang (dengan atau tanpa quote)
+            if (preg_match('/<html\b[^>]*\blang\s*=\s*([\'"])?([^\s>\'"]+)\1?/i', $string)) {
+                // Ganti atribut lang yang sudah ada
+                $string = preg_replace('/(<html\b[^>]*\blang\s*=\s*)([\'"])?([^\s>\'"]+)([\'"])?/i', "$1\"$lang\"", $string);
+            } else {
+                // Jika belum ada, tambahkan atribut lang
+                $string = preg_replace('/(<html\b)([^>]*?)>/i', "$1 lang=\"$lang\"$2>", $string);
+            }
+        }
         // Mendeteksi script PWA
         $dir_mnfs = "{$this->basename}/manifest.json";
         $svworker = "{$this->basename}/service-worker.js";
@@ -709,8 +721,8 @@ class Router
             $varss= array_map(function($item) {
                 return preg_replace('/[\r\n]/is',"",$item);
             }, $match);
-            $favicon = isset($this->data['pwa']['icon_192']) && file_exists("{$this->basename}/{$this->data['pwa']['icon_192']}") ?: null ;
-            if($favicon)
+            $favicon = null ;
+            if(isset($this->data['pwa']['icon_192']) && file_exists("{$this->basename}/{$this->data['pwa']['icon_192']}"))
                 $favicon = "\n[~]<link rel=\"icon\" href=\"{$this->http_base}{$this->data['pwa']['icon_192']}\" sizes=\"192x192\">";
             $add_meta =null;
             if(!empty($this->data['pwa']['name']))
@@ -1045,9 +1057,8 @@ INI;
                 // Service Worker
                 $tm = strtotime('now');
                 $sw = <<<JS
-var staticCacheName = "pwa-$tm";
 self.addEventListener("install",function(e){
-    e.waitUntil(caches.open(staticCacheName).then(function(cache){
+    e.waitUntil(caches.open("pwa-$tm").then(function(cache){
         return cache.addAll(["/"])
     }))
 }); 
