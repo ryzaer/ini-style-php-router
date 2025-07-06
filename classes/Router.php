@@ -316,8 +316,11 @@ class Router
 
         foreach ($matches as $match) {
             $sectionName = trim($match[1]);
-            $sectionContent = trim($match[2]);
+            // Ini yang diperbaiki:
+            $sectionContent = trim($this->parse($match[2])); // <-- HARUS di-parse di sini.
             $this->sections[$sectionName] = $sectionContent;
+
+            // Hapus dari content agar tidak double render
             $content = str_replace($match[0], '', $content);
         }
     }
@@ -753,7 +756,7 @@ HTML;
         }
         return $string;
     }
-    function render($layoutFile=null): string
+    function render($layoutFile = null): string
     {
         if (!file_exists($layoutFile)) {
             return "<!-- Layout file not found: {$layoutFile} -->";
@@ -762,7 +765,6 @@ HTML;
         $cacheFile = $this->getCacheFilePath($layoutFile);
         $metaFile = $cacheFile . '.meta';
 
-        // Gunakan cache jika file belum berubah
         if ($this->enableCache && file_exists($cacheFile) && file_exists($metaFile)) {
             $meta = json_decode(file_get_contents($metaFile), true);
             $expired = false;
@@ -779,35 +781,39 @@ HTML;
             }
         }
 
-        // --- Proses rendering seperti biasa ---
+        // --- Step 1: Ambil child layout ---
         $content = file_get_contents($layoutFile);
+
+        // --- Step 2: Deteksi extends dan extract sections ---
         $this->parseExtends($content);
         $this->parseSections($content);
 
+        // --- Step 3: Jika punya parent, load parent ---
         if ($this->parentLayout && file_exists($this->parentLayout)) {
             $layoutContent = file_get_contents($this->parentLayout);
+
+            // --- Step 4: Inject section ke parent layout ---
             $layoutContent = $this->injectYields($layoutContent);
+
+            // --- Step 5: Final parse parent layout ---
             $output = $this->parse($layoutContent);
         } else {
+            // Jika tidak punya parent, parse child layout biasa
             $output = $this->parse($content);
         }
 
-        // deteksi jika webapp support pwa
+        // --- Step 6: Tambahkan script PWA jika ada ---
         $output = $this->addOnScripts($output);
 
-        // Simpan cache
+        // --- Step 7: Simpan cache ---
         if ($this->enableCache) {
-            // Catat file yang terlibat: layoutFile, parentLayout, includes
             $usedFiles = array_unique(array_merge(
                 [$layoutFile],
                 $this->parentLayout ? [$this->parentLayout] : [],
                 $this->includedFiles
             ));
 
-            $metaData = [
-                'files' => []
-            ];
-
+            $metaData = ['files' => []];
             foreach ($usedFiles as $file) {
                 $metaData['files'][$file] = file_exists($file) ? filemtime($file) : 0;
             }
