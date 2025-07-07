@@ -722,8 +722,9 @@ class Router
         // Mendeteksi script PWA
         $dir_mnfs = "{$this->basename}/manifest.json";
         $svworker = "{$this->basename}/service-worker.js";
-        preg_match_all('/(\s*)<(title|footer)>|<\/(title|footer)>/', $string,$match,PREG_SET_ORDER);
+        preg_match_all('/(\s*)<(title\b[^>]*|footer\b[^>]*)>|<\/(title|footer)>/', $string,$match,PREG_SET_ORDER);
         if(file_exists($dir_mnfs) && file_exists($svworker) && $match){
+            
             $varss= array_map(function($item) {
                 return preg_replace('/[\r\n]/is',"",$item);
             }, $match);
