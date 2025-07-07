@@ -121,6 +121,7 @@ class Router
                 }
             }
         }
+        
         return $config;
     }
 
@@ -133,6 +134,11 @@ class Router
             if ($matches) {
                 $value = str_replace($matches[0], '', $value);
                 parse_str(str_replace(',', '&', $matches[1]), $options);
+                $optParse=[];
+                foreach ($options as $k => $v) {
+                    $optParse[$k] = $this->convertValue($v);
+                }
+                $options = $optParse;
             }
             [$key, $handler] = array_map('trim', explode('=', $value, 2));
             
@@ -235,7 +241,7 @@ class Router
                 }
                 return;
             }            
-
+            
             foreach ($self->routes[$method] as $route) {
                 if (preg_match($route['regex'], $path, $matches)) {
                     array_shift($matches);
@@ -246,7 +252,7 @@ class Router
                         $origin = $route['options']['cors'] === true ? '*' : $route['options']['cors'];  
                         header("Access-Control-Allow-Origin: $origin");
                     }
-
+                    
                     if (!empty($route['options']['auth']) && $route['options']['auth'] === true) {
                         session_start();
                         if($self->get('global.auth_data')){
