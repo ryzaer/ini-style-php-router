@@ -216,10 +216,10 @@ class Router
             $method = strtoupper($method);
             // $params = ['url_path'=>preg_replace('/[^0-9a-zA-Z]/','',$path)];
             $psplit = explode('/',$path);
-            $pgname = array_filter(array_values($psplit));
+            $pgname = array_values(array_filter($psplit));
             $pgbase = str_repeat('../',count($psplit)-2);
             $self->http_base = $pgbase;
-            $params = ['path'=> empty($pgname[0]) ?: preg_replace('/[^0-9a-zA-Z]/','',$pgname[0]),'base'=>$pgbase ?: "./",'data'=>[]];
+            $params = ['path'=> !empty($pgname[0])?$pgname[0]:'','base'=> $pgbase ?: "./",'data'=>[]];
 
             $errorHandler = $self->get('global.error_handler');
             // conditional templating cache
