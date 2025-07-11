@@ -4,7 +4,7 @@ class Router
 {
     private $routes = [];
     private $fn;
-    protected $http = [];
+    protected $http_base;
 
     function __construct($configPath=null)
     {
@@ -196,9 +196,9 @@ class Router
                     $obj->extension = $this->extension;
                     $obj->cachesPath = $this->cachesPath;
                     $obj->controllersPath = $this->controllersPath;
-                    $obj->http = (object) $params;
+                    $obj->http_base= $this->http_base;
                     // now execute method
-                    $obj->$action($obj->http);
+                    $obj->$action((object)$params);
                     return true;
                 }
             }
@@ -224,6 +224,7 @@ class Router
             $psplit = explode('/',$path);
             $pgname = array_values(array_filter($psplit));
             $pgbase = str_repeat('../',count($psplit)-2);
+            $self->http_base = $pgbase;
             $params = ['path'=> !empty($pgname[0])?$pgname[0]:'','base'=> $pgbase ?: "./",'data'=>[]];
 
             $errorHandler = $self->get('global.error_handler');
@@ -705,6 +706,7 @@ class Router
         return $content;
     }
     protected function addOnScripts($string):string{
+        $this->http_base = $this->http_base ? $this->http_base : "{$this->basename}/";
         // deteksi language di initial <html> 
         if(!empty($this->data['pwa']['lang'])){
             $lang = $this->data['pwa']['lang'];
@@ -728,7 +730,7 @@ class Router
             }, $match);
             $favicon = null ;
             if(isset($this->data['pwa']['icon_192']) && file_exists("{$this->basename}/{$this->data['pwa']['icon_192']}"))
-                $favicon = "\n[~]<link rel=\"icon\" href=\"{$this->http->base}{$this->data['pwa']['icon_192']}\" sizes=\"192x192\">";
+                $favicon = "\n[~]<link rel=\"icon\" href=\"{$this->http_base}{$this->data['pwa']['icon_192']}\" sizes=\"192x192\">";
             $add_meta =null;
             if(!empty($this->data['pwa']['name']))
                 $add_meta .= "\n[~]<meta name=\"application-name\" content=\"{$this->data['pwa']['name']}\"/>";
@@ -741,19 +743,17 @@ class Router
                 $add_meta .= "\n[~]<meta name=\"msnbot\" content=\"noindex, nofollow, noarchive, noodp\"/>";
                 $add_meta .= "\n[~]<meta name=\"bingbot\" content=\"noindex, nofollow, noarchive, noodp\"/>";
             }
-$color = $this->get('pwa.theme_color') ?? '#757575';
-// meta x-http untuk inisiasi jQuery Page Modul
+$color = $this->get('pwa.theme_color');
 $meta = <<<HTML
 </title>
-[~]<link rel="manifest" href="{$this->http->base}manifest.json">$favicon
-[~]<meta name="theme-color" content="$color">
-[~]<meta name="x-http" content="path={$this->http->path}, code={$this->http->code}, base={$this->http->base}">$add_meta
+[~]<link rel="manifest" href="{$this->http_base}manifest.json">$favicon
+[~]<meta name="theme-color" content="$color">$add_meta
 HTML;
 $script = <<<HTML
 </footer>
 [~]<script>
 [~] if ('serviceWorker' in navigator) {
-[~]   navigator.serviceWorker.register('{$this->http->base}service-worker.js')
+[~]   navigator.serviceWorker.register('{$this->http_base}service-worker.js')
 [~]     .then(() => console.log('✅ Service Worker registered'))
 [~]     .catch(err => console.error('⚠️ Fail register SW:', err));
 [~] }
