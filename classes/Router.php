@@ -3,8 +3,9 @@
 class Router
 {
     private $routes = [];
-    private $fn;
-    protected $http_base;
+    protected $fn;
+    protected $http = [];
+    protected static $inst ;
 
     function __construct($configPath=null)
     {
@@ -29,11 +30,14 @@ class Router
             $this->templatesPath = $this->config['global']['template_path'];
         if(!empty($this->config['global']['allow_extension']))
             $this->extension = $this->config['global']['allow_extension'];
-
         
         $this->cachesPath = "{$this->basename}/{$this->cachesPath}";
         $this->controllersPath = "{$this->basename}/{$this->controllersPath}";
         $this->templatesPath = "{$this->basename}/{$this->templatesPath}";
+    }
+
+    static function instance(){
+        return self::$inst;
     }
 
     function getConfig()
@@ -176,7 +180,9 @@ class Router
     private function includeHandler($route, $params, $http_code=200)
     {
         if (!strpos($route, '@')) return false;
-        $params = array_merge(["code" => $http_code],$params);
+        $params->code = $http_code;
+
+        $this->http = (object) $params;
 
         [$controller, $action] = explode('@', $route, 2);
         $controllerFile = "{$this->controllersPath}/{$controller}.php";
@@ -184,11 +190,13 @@ class Router
         if (file_exists($controllerFile)) {
             require_once $controllerFile;
             if (class_exists($controller)) {
+                // memanggil class handler
                 $obj = new $controller();
                 if (method_exists($obj, $action)) {
-                    $obj->routes = $this->routes;
+                    // start : menambahkan nilai2 yang sudah terpanggil oleh class Router pada class handler ini
                     $obj->fn = $this->fn;
                     $obj->data = $this->data;
+                    $obj->routes = $this->routes;
                     $obj->sections = $this->sections;
                     $obj->parentLayout = $this->parentLayout;
                     $obj->enableCache = $this->enableCache;
@@ -196,9 +204,9 @@ class Router
                     $obj->extension = $this->extension;
                     $obj->cachesPath = $this->cachesPath;
                     $obj->controllersPath = $this->controllersPath;
-                    $obj->http_base= $this->http_base;
-                    // now execute method
-                    $obj->$action((object)$params);
+                    $obj->http = $this->http;
+                    // finish : selanjutnya memanggil fungsi yang ditentukan oleh handler
+                    $obj->$action($this->http->data);
                     return true;
                 }
             }
@@ -210,9 +218,9 @@ class Router
     static function dispatch($configPath,$cli=[])
     {
         !$cli || self::getCLI($cli);
-        $self = new self($configPath);
-        $self->fn = \__fn::get();
-        $self->setConfig();  
+        if(!self::$inst)
+            self::$inst = new self($configPath);
+        self::$inst->setConfig();  
         
         if(isset($_SERVER['REQUEST_URI']) && isset($_SERVER['REQUEST_METHOD'])){
             
@@ -224,29 +232,33 @@ class Router
             $psplit = explode('/',$path);
             $pgname = array_values(array_filter($psplit));
             $pgbase = str_repeat('../',count($psplit)-2);
-            $self->http_base = $pgbase;
-            $params = ['path'=> !empty($pgname[0])?$pgname[0]:'','base'=> $pgbase ?: "./",'data'=>[]];
+            // ini code awal adalah 200
+            $params = ['code'=>200,'path'=> !empty($pgname[0])?$pgname[0]:'','base'=> $pgbase ?: "./",'data'=>[]];
+            //memberikan nilai2 ini di fungsi instance dan route fungsi includeHandler
+            self::$inst->fn = \__fn::get();
+            self::$inst->http = (object) $params; 
 
-            $errorHandler = $self->get('global.error_handler');
+            $errorHandler = self::$inst->get('global.error_handler');
             // conditional templating cache
-            if($self->get('global.cache_enable') === true )
-                $self->enableCache = true;
+            if(self::$inst->get('global.cache_enable') === true )
+                self::$inst->enableCache = true;
             
-            if (!isset($self->routes[$method])) {
+            if (!isset(self::$inst->routes[$method])) {
                 http_response_code(405);
                 if ($errorHandler) {
-                    $self->includeHandler($errorHandler, $params, 405);
+                    self::$inst->includeHandler($errorHandler, $params, 405);
                 } else {
                     echo "405 Method Not Allowed";
                 }
                 return;
-            }            
+            }
             
-            foreach ($self->routes[$method] as $route) {
+            foreach (self::$inst->routes[$method] as $route) {
                 if (preg_match($route['regex'], $path, $matches)) {
                     array_shift($matches);
                     $chkprm = array_combine($route['params'],$matches);
-                    $params = array_merge($params,['data'=> !empty($chkprm) ? (object) $chkprm : [] ]);
+                    //update nilai http data jika ada perubahan
+                    self::$inst->http->data = !empty($chkprm) ? (object) $chkprm : []; 
 
                     if (!empty($route['options']['cors'])){
                         $origin = $route['options']['cors'] === true ? '*' : $route['options']['cors'];  
@@ -255,8 +267,8 @@ class Router
                     
                     if (!empty($route['options']['auth']) && $route['options']['auth'] === true) {
                         session_start();
-                        if($self->get('global.auth_data')){
-                            $authKeys = explode('|', $self->get('global.auth_data') ?? '');
+                        if(self::$inst->get('global.auth_data')){
+                            $authKeys = explode('|', self::$inst->get('global.auth_data') ?? '');
                             $authKeys = array_map('trim', $authKeys);
                             $missing = array_filter($authKeys, function ($key) {
                                 return !isset($_SESSION[$key]);
@@ -265,7 +277,7 @@ class Router
                             if (!empty($missing)) {
                                 http_response_code(403);
                                 if ($errorHandler) {
-                                    $self->includeHandler($errorHandler, $params, 403);
+                                    self::$inst->includeHandler($errorHandler, self::$inst->http, 403);
                                 } else {
                                     echo "403 Forbidden (missing auth data)";
                                 }
@@ -274,11 +286,11 @@ class Router
                         }
                     }
                     
-                    if ($self->includeHandler($route['handler'], $params)) return;
+                    if (self::$inst->includeHandler($route['handler'], self::$inst->http)) return;
                     
                     http_response_code(500);
                     if ($errorHandler) {
-                        $self->includeHandler($errorHandler, $params, 500);
+                        self::$inst->includeHandler($errorHandler, self::$inst->http, 500);
                     } else {
                         echo "500 Controller not found.";
                     }
@@ -288,7 +300,7 @@ class Router
 
             http_response_code(404);
             if ($errorHandler) {
-                $self->includeHandler($errorHandler, $params, 404);
+                self::$inst->includeHandler($errorHandler, self::$inst->http, 404);
             } else {
                 echo "404 Not Found";
             }
@@ -706,7 +718,6 @@ class Router
         return $content;
     }
     protected function addOnScripts($string):string{
-        $this->http_base = $this->http_base ? $this->http_base : "{$this->basename}/";
         // deteksi language di initial <html> 
         if(!empty($this->data['pwa']['lang'])){
             $lang = $this->data['pwa']['lang'];
@@ -730,7 +741,7 @@ class Router
             }, $match);
             $favicon = null ;
             if(isset($this->data['pwa']['icon_192']) && file_exists("{$this->basename}/{$this->data['pwa']['icon_192']}"))
-                $favicon = "\n[~]<link rel=\"icon\" href=\"{$this->http_base}{$this->data['pwa']['icon_192']}\" sizes=\"192x192\">";
+                $favicon = "\n[~]<link rel=\"icon\" href=\"{$this->http->base}{$this->data['pwa']['icon_192']}\" sizes=\"192x192\">";
             $add_meta =null;
             if(!empty($this->data['pwa']['name']))
                 $add_meta .= "\n[~]<meta name=\"application-name\" content=\"{$this->data['pwa']['name']}\"/>";
@@ -743,17 +754,19 @@ class Router
                 $add_meta .= "\n[~]<meta name=\"msnbot\" content=\"noindex, nofollow, noarchive, noodp\"/>";
                 $add_meta .= "\n[~]<meta name=\"bingbot\" content=\"noindex, nofollow, noarchive, noodp\"/>";
             }
-$color = $this->get('pwa.theme_color');
+$color = $this->get('pwa.theme_color') ?? '#757575';
+// meta x-http untuk inisiasi jQuery Page Modul
 $meta = <<<HTML
 </title>
-[~]<link rel="manifest" href="{$this->http_base}manifest.json">$favicon
-[~]<meta name="theme-color" content="$color">$add_meta
+[~]<link rel="manifest" href="{$this->http->base}manifest.json">$favicon
+[~]<meta name="theme-color" content="$color">
+[~]<meta name="x-http" content="path={$this->http->path}, code={$this->http->code}, base={$this->http->base}">$add_meta
 HTML;
 $script = <<<HTML
 </footer>
 [~]<script>
 [~] if ('serviceWorker' in navigator) {
-[~]   navigator.serviceWorker.register('{$this->http_base}service-worker.js')
+[~]   navigator.serviceWorker.register('{$this->http->base}service-worker.js')
 [~]     .then(() => console.log('✅ Service Worker registered'))
 [~]     .catch(err => console.error('⚠️ Fail register SW:', err));
 [~] }
@@ -1062,7 +1075,7 @@ INI;
                 echo "📌 manifest.json $mnf_info";
 
                 // Service Worker
-                $tm = strtotime('now');
+                $tm = hash('adler32',$manifest["name"]);
                 $sw = <<<JS
 self.addEventListener("install",function(e){
     e.waitUntil(caches.open("pwa-$tm").then(function(cache){
@@ -1102,7 +1115,7 @@ JS;
                     $uniqueMethods = array_unique($methods);
 
                     foreach ($uniqueMethods as $method) {
-                        $classDef .= "    function $method(\$http)\n    {\n        // TODO: implement $method\n    }\n\n";
+                        $classDef .= "    function $method(\$slug)\n    {\n        // TODO: implement $method\n    }\n\n";
                     }
 
                     $classDef .= "}\n";
@@ -1116,7 +1129,7 @@ JS;
                         $updated = false;
                         foreach ($uniqueMethods as $method) {
                             if (!preg_match('/function\\s+' . preg_quote($method, '/') . '\\s*\\(/', $content)) {
-                                $append = "\n    function $method(\$http)\n    {\n        // TODO: implement $method\n    }\n";
+                                $append = "\n    function $method(\$slug)\n    {\n        // TODO: implement $method\n    }\n";
                                 $content = preg_replace('/\\}\\s*$/', $append . "\n}", $content);
                                 $updated = true;
                             }
