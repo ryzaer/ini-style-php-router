@@ -39,6 +39,11 @@ class Router
     static function instance(){
         return self::$inst;
     }
+    static function dateFormatter($dateString,$format='id_ID'){
+        // $fmt = new \IntlDateFormatter('id_ID', \IntlDateFormatter::FULL, \IntlDateFormatter::SHORT);
+      $fmt = new \IntlDateFormatter($format, \IntlDateFormatter::LONG, \IntlDateFormatter::NONE);
+      return $fmt->format(new \DateTime($dateString));
+    }
 
     function getConfig()
     {
@@ -880,13 +885,14 @@ HTML;
 
         $user = !empty($data['user'])?$data['user']:'';
         $pass = !empty($data['pass'])?$data['pass']:'';
-        $name = !empty($data['name'])?$data['name']:'';
+        $type = !empty($data['type'])?$data['type']:'mysql';
         $host = !empty($data['host'])?$data['host']:'localhost';
         $port = !empty($data['port'])?$data['port']:'3306';
-        $type = !empty($data['type'])?$data['type']:'mysql';
+        $name = !empty($data['name'])?";dbname={$data['name']}":'';
+        $char = $type === 'mysql' ? ';charset=utf8mb4' : '';
         
         try {
-            $pdo = new \PDO(sprintf('%s:host=%s;port=%s%s',$type,$host,$port,$name?";dbname=$name":''),$user,$pass);
+            $pdo = new \PDO(sprintf('%s:host=%s;port=%s%s%s',$type,$host,$port,$name,$char),$user,$pass);
             $pdo->setAttribute(\PDO::ATTR_ERRMODE,\PDO::ERRMODE_EXCEPTION);
             return new \dbHandler($pdo,$this->extension);
         } catch (\PDOException $e) {

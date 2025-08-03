@@ -275,6 +275,50 @@ class dbHandler
         return $this->handler->exec($sql) !== false;
     }
 
+    // untuk membuat parse regex permutasi kata
+    function buildFlexibleRegex($keyword) {
+        // Bersihkan dan pisahkan kata
+        $words = preg_split('/\s+/', trim($keyword));
+        $words = array_filter($words); // hapus yang kosong
+        $words = array_map(function($w) {
+            return preg_quote($w, '/'); // escape karakter khusus regex
+        }, $words);
+
+        // Jika cuma satu kata, cukup pakai langsung
+        if (count($words) === 1) {
+            return $words[0];
+        }
+
+        // Buat semua kombinasi urutan kata
+        $permutations = $this->permute($words);
+
+        // Gabungkan tiap kombinasi dengan ".*" antar katanya
+        $regexParts = array();
+        foreach ($permutations as $perm) {
+            $regexParts[] = implode('.*', $perm);
+        }
+
+        // Gabungkan jadi satu regex dengan OR "|"
+        return implode('|', $regexParts);
+    }
+
+    // Fungsi bantu untuk menghasilkan semua permutasi kata
+    private function permute($items, $perms = array()) {
+        if (empty($items)) {
+            return array($perms);
+        } else {
+            $result = array();
+            for ($i = 0; $i < count($items); $i++) {
+                $newItems = $items;
+                $newPerms = $perms;
+                list($item) = array_splice($newItems, $i, 1);
+                array_push($newPerms, $item);
+                $result = array_merge($result, $this->permute($newItems, $newPerms));
+            }
+            return $result;
+        }
+    }
+
     private function checkFile(string $path):bool {
         return  is_readable($path) ? true : false;
     }
