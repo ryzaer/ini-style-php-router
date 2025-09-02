@@ -220,9 +220,9 @@ class Router
         return false;
     }
     
-    static function dispatch($configPath,$cli=[])
+    static function dispatch($configPath)
     {
-        !$cli || self::getCLI($cli);
+        self::getCLI();
         if(!self::$inst)
             self::$inst = new self($configPath);
         self::$inst->setConfig();  
@@ -914,7 +914,11 @@ HTML;
     protected string $cachesPath = 'caches';
     protected string $controllersPath = 'controllers';
     protected string $templatesPath = 'templates';
-    protected static function getCLI($prms){
+    protected static function getCLI(){
+        if (PHP_SAPI !== 'cli') return false;
+        
+        $prms = $_SERVER['argv'];
+        
         if (isset($prms[1]) && $prms[1] == 'clear:caches') {
             $self = new self();
             if (!is_dir($self->cachesPath)) {
@@ -937,7 +941,7 @@ HTML;
             exit;
         }
 
-        if (isset($prms[2]) && $prms[1] === 'make:ini') {
+        if (isset($prms[2]) && $prms[1] === 'make:ini') {            
             $standard_ini = <<<INI
 [global]
 ;error_handler = ErrorController@handle
