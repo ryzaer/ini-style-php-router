@@ -165,6 +165,7 @@ Now you can build structure with `index.php` script to:
 - Generate standard ini file configuration (`make:ini`)
 - Generate PWA setup (`make:pwa`) based on `[pwa]` section
 - Template Cache cleaner (`clear:caches`)
+- Write custom scripts (`make:script folder/script.js`)
 
 CLI patterns:
 ```shell
