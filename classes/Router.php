@@ -918,7 +918,35 @@ HTML;
         if (PHP_SAPI !== 'cli') return false;
         
         $prms = $_SERVER['argv'];
-        
+        // buat file script
+        if($prms[1] === 'make:script'){
+            print_r($_SERVER);
+            $self = new self();
+            echo "📌 Write script name : {$prms[2]}\n";
+            if(!empty($prms[2]) && is_string($prms[2]) && preg_match('/\.js/', $prms[2])){
+                $file = "{$self->basename}/{$prms[2]}";
+                // pastikan folder ada
+                if(file_exists($file)){
+                    echo "• Skipped, file already exists!\n";
+                    exit;
+                }
+                $dir = dirname($file);
+                if (!is_dir($dir)) {
+                    mkdir($dir, 0777, true); // recursive mkdir
+                }
+
+                // buat file kosong
+                if (touch($file)) {
+                    echo "✔  File created!";
+                } else {
+                    echo "❌ Failed to create!";
+                }
+            }else{
+                echo "❌ Script name must have extension .js!\n";
+            }
+            exit;
+        }
+
         if (isset($prms[1]) && $prms[1] == 'clear:caches') {
             $self = new self();
             if (!is_dir($self->cachesPath)) {
@@ -1154,6 +1182,7 @@ JS;
                 }
                 exit;
             }
+            
         }
         exit;
     }
