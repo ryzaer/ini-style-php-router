@@ -3,9 +3,9 @@
 class Router
 {
     private $routes = [];
-    protected $fn;
-    protected $http = [];
+    protected $fn,$config,$http = [];
     protected static $inst ;
+    public $basename;
 
     function __construct($configPath=null)
     {
@@ -39,24 +39,42 @@ class Router
     static function instance(){
         return self::$inst;
     }
-    static function dateFormatter($dateString,$format='id_ID'){
+    static function dateFormatter($dateString, $locale = 'id_ID') {
+        $stmt = self::instance();
+        $locale = !empty($stmt->data['pwa']['lang']) ? $stmt->data['pwa']['lang'] : $locale;
+
         // $fmt = new \IntlDateFormatter('id_ID', \IntlDateFormatter::FULL, \IntlDateFormatter::SHORT);
-      $fmt = new \IntlDateFormatter($format, \IntlDateFormatter::LONG, \IntlDateFormatter::NONE);
-      return $fmt->format(new \DateTime($dateString));
+        // pakai pattern kustom agar ada leading zero
+        $fmt = new \IntlDateFormatter(
+            $locale,
+            \IntlDateFormatter::LONG,
+            \IntlDateFormatter::NONE,
+            null,
+            null,
+            'dd MMMM yyyy' // <- kustom pattern
+        );        
+        return $fmt->format(new \DateTime($dateString));
     }
 
     function getConfig()
     {
         // getconfig hanya bisa dibaca di cli mode
-        return isset($this->config)?$this->config:'';
+        return isset($this->config) ? $this->config : '';
+    }
+    // memanggil fn didalam maupun diluar class
+    // pengganti $this->fn->custom_function()
+    // karna nilai fn adalah protected hanya bisa diakses
+    // didalam class dan class turunan (inheritance)
+    function fn($func,...$args){
+        if(is_string($func))
+            return $this->fn->{$func}(...$args);       
     }
     function getAuthData()
     {
         $authKeys = !empty($this->data['global']['auth_data']) ? explode("|",$this->data['global']['auth_data']) : [] ;
         $authData = [];
-        foreach ($authKeys as $key) {
-           $authData[$key] = !empty($_SESSION[$key]) ? $_SESSION[$key] : ''; 
-        }
+        foreach ($authKeys as $key)
+           $authData[$key] = !empty($_SESSION[$key]) ? $_SESSION[$key] : '';        
         return $authData;
     }
 
@@ -226,6 +244,8 @@ class Router
         if(!self::$inst)
             self::$inst = new self($configPath);
         self::$inst->setConfig();  
+        if(!empty(self::$inst->data['global']['time_zone']))
+            date_default_timezone_set(self::$inst->data['global']['time_zone']);
         
         if(isset($_SERVER['REQUEST_URI']) && isset($_SERVER['REQUEST_METHOD'])){
             
@@ -240,7 +260,7 @@ class Router
             // ini code awal adalah 200
             $params = ['code'=>200,'path'=> !empty($pgname[0])?$pgname[0]:'','base'=> $pgbase ?: "./",'data'=>[]];
             //memberikan nilai2 ini di fungsi instance dan route fungsi includeHandler
-            self::$inst->fn = \__fn::get();
+            self::$inst->fn = \__fn::get(self::$inst->controllersPath."/functions");
             self::$inst->http = (object) $params; 
 
             $errorHandler = self::$inst->get('global.error_handler');
@@ -570,7 +590,7 @@ class Router
                 $contentBlock = $parts[$i];
                 $next = $parts[$i + 1] ?? null;
 
-                if (strpos($next, 'elseif') === 0) {
+                if (is_string($next) && strpos($next, 'elseif') === 0) {
                     $conditions[] = ['condition' => $currentCondition, 'content' => $contentBlock];
                     $currentCondition = trim(substr($next, 7)); // Ambil kondisi elseif berikutnya
                 } elseif ($next === 'else') {
@@ -920,17 +940,19 @@ HTML;
         $prms = $_SERVER['argv'];
         // buat file script
         if($prms[1] === 'make:script'){
-            print_r($_SERVER);
             $self = new self();
             echo "📌 Write script name : {$prms[2]}\n";
             if(!empty($prms[2]) && is_string($prms[2]) && preg_match('/\.js/', $prms[2])){
                 $file = "{$self->basename}/{$prms[2]}";
+                print_r(basename($file));
                 // pastikan folder ada
                 if(file_exists($file)){
                     echo "• Skipped, file already exists!\n";
                     exit;
                 }
                 $dir = dirname($file);
+                $fnm = basename($file);
+                
                 if (!is_dir($dir)) {
                     mkdir($dir, 0777, true); // recursive mkdir
                 }
@@ -972,6 +994,7 @@ HTML;
         if (isset($prms[2]) && $prms[1] === 'make:ini') {            
             $standard_ini = <<<INI
 [global]
+time_zone = Asia/Jakarta
 ;error_handler = ErrorController@handle
 ; Values separated by "|" .exp (username|password|....)
 auth_data = 
@@ -988,7 +1011,7 @@ GET / = HomeController@method
 
 [pwa]
 name = PHP App iniStyle support
-lang = en
+lang = id_ID
 short_name = I-App
 ; description member is optional, and app stores may not use this
 description = PHP application with .ini-based configuration

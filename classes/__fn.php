@@ -6,16 +6,16 @@ class __fn
     private $create = false,
             $folder = __DIR__."/__functions",
             $fn_scema,
-            $souce  = [];
+            $source  = [];
 
     static function get($dirs=null,$call=true,$fnscema = null){
         self::$ths = new \__fn();       
         self::$ths->fn_scema = $fnscema;
-        if(!$dirs)
-            $dirs = self::$ths->folder;
+        if($dirs)
+            self::$ths->folder = $dirs;
         
-        is_dir($dirs) || mkdir($dirs,0755,true);
-        self::$ths->source[$dirs] = $call; 
+        is_dir(self::$ths->folder) || mkdir(self::$ths->folder,0755,true);
+        self::$ths->source[self::$ths->folder] = $call; 
         return self::$ths;
     }
         
